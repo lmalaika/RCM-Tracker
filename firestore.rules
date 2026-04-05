@@ -1,0 +1,38 @@
+// ═══════════════════════════════════════════════════════════════════
+//  FIRESTORE SECURITY RULES
+//
+//  OPTION A — Open access (easiest, fine for internal team on private URL)
+//  Everyone who knows the URL can read and write.
+//  Use this to get started quickly.
+//
+//  OPTION B — Restrict by email (recommended once working)
+//  Uncomment the section below to lock down to specific email addresses.
+//  Requires enabling Firebase Authentication (Google Sign-In, free tier).
+// ═══════════════════════════════════════════════════════════════════
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── OPTION A: Open access ─────────────────────────────────────
+    // Anyone with the URL can read and write.
+    // Safe for an internal team tool on a non-public URL.
+    match /accounts/{docId} {
+      allow read, write: if true;
+    }
+
+    // ── OPTION B: Restrict to your team's email addresses ─────────
+    // Uncomment and fill in your team's emails to enable.
+    // You must also enable Google Sign-In in Firebase Auth console.
+    //
+    // match /accounts/{docId} {
+    //   allow read, write: if request.auth != null
+    //     && request.auth.token.email in [
+    //       "laith@rcmtechnologies.com",
+    //       "ameen@rcmtechnologies.com",
+    //       "samantha@rcmtechnologies.com",
+    //       "brad@rcmtechnologies.com"
+    //     ];
+    // }
+  }
+}

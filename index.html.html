@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>RCM — Client Pursuit Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#00132F;--blue:#1061E9;--blt:#E8F0FE;
+  --white:#FFFFFF;--bg:#F0F3FA;--bg2:#E4E9F5;--border:#CBD4EC;
+  --text:#1A2340;--tmid:#445070;--tsoft:#7A8FB0;
+  --green:#0A6B49;--grlt:#D4F0E4;
+  --amber:#7A5500;--amlt:#FFF0CC;
+  --purple:#3E2685;--purlt:#EAE5FF;
+  --gray:#BBC5DE;--graylt:#EEF1F8;
+  --shadow:0 2px 16px rgba(16,30,80,0.10);
+  --shadow-lg:0 8px 36px rgba(16,30,80,0.18);
+  --card-h:92px;
+  --radius:12px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Montserrat',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+/* ── HEADER ── */
+.hdr{background:var(--navy);height:60px;padding:0 32px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:300;box-shadow:0 3px 24px rgba(0,0,0,0.28);}
+.hdr-l{display:flex;align-items:center;gap:14px;}
+.logo{height:36px;}
+.vline{width:1px;height:28px;background:rgba(255,255,255,0.14);}
+.app-title{color:#fff;font-size:13.5px;font-weight:700;letter-spacing:.1px;}
+.app-sub{color:rgba(255,255,255,0.32);font-size:8.5px;letter-spacing:2px;text-transform:uppercase;margin-top:1px;}
+.hdr-r{display:flex;align-items:center;gap:9px;}
+.hdr-date{color:rgba(255,255,255,0.5);font-size:11px;font-family:'DM Mono',monospace;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);padding:4px 12px;border-radius:16px;}
+.btn{border:none;border-radius:8px;padding:7px 15px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Montserrat',sans-serif;transition:all .14s;display:flex;align-items:center;gap:5px;}
+.btn-p{background:var(--blue);color:#fff;}.btn-p:hover{background:#0B4FC0;transform:translateY(-1px);}
+.btn-o{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.14);}.btn-o:hover{background:rgba(255,255,255,0.16);}
+.blue-stripe{height:3px;background:linear-gradient(90deg,var(--blue),#34D399);}
+
+/* ── SYNC STATUS INDICATOR (new) ── */
+.sync-badge{
+  font-size:9px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;
+  padding:3px 10px;border-radius:20px;font-family:'DM Mono',monospace;
+  display:flex;align-items:center;gap:5px;transition:all .3s;
+}
+.sync-badge.live{background:rgba(10,107,73,0.25);color:#34D399;border:1px solid rgba(52,211,153,0.3);}
+.sync-badge.saving{background:rgba(255,174,0,0.2);color:#FFB000;border:1px solid rgba(255,174,0,0.3);}
+.sync-badge.offline{background:rgba(168,35,24,0.25);color:#FF6B6B;border:1px solid rgba(255,107,107,0.3);}
+.sync-dot{width:6px;height:6px;border-radius:50%;background:currentColor;}
+.sync-badge.live .sync-dot{animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+
+/* ── ACTIONS PANEL ── */
+.act-wrap{padding:12px 32px;background:var(--white);border-bottom:2px solid var(--border);}
+.act-title{font-size:9.5px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:var(--tsoft);margin-bottom:9px;}
+.act-grid{display:flex;gap:9px;flex-wrap:wrap;}
+.act-card{background:var(--bg);border-left:3px solid var(--blue);border-radius:8px;padding:8px 13px;cursor:pointer;min-width:200px;max-width:260px;transition:box-shadow .13s,transform .13s;}
+.act-card:hover{box-shadow:var(--shadow);transform:translateY(-1px);}
+.act-name{font-size:11.5px;font-weight:700;color:var(--text);}
+.act-action{font-size:10.5px;color:var(--tmid);line-height:1.4;margin-top:2px;}
+.act-due{font-size:9.5px;font-weight:700;color:var(--amber);font-family:'DM Mono',monospace;margin-top:3px;}
+
+/* ── SEARCH / FILTER BAR ── */
+.bar{padding:10px 32px;background:var(--white);border-bottom:1px solid var(--border);display:flex;gap:9px;align-items:center;flex-wrap:wrap;}
+.sbox{display:flex;align-items:center;gap:7px;background:var(--bg);border:1.5px solid var(--border);border-radius:9px;padding:6px 12px;flex:1;min-width:180px;}
+.sbox input{border:none;outline:none;background:transparent;font-size:12px;font-family:'Montserrat',sans-serif;color:var(--text);width:100%;}
+.sbox svg{color:var(--tsoft);flex-shrink:0;}
+.fsel{border:1.5px solid var(--border);border-radius:9px;padding:7px 12px;font-size:11.5px;font-family:'Montserrat',sans-serif;color:var(--tmid);background:var(--bg);outline:none;cursor:pointer;}
+.fsel:focus{border-color:var(--blue);}
+.spacer{flex:1;}
+.vtgl{display:flex;background:var(--bg);border-radius:9px;border:1.5px solid var(--border);overflow:hidden;}
+.vtgl-btn{border:none;background:transparent;padding:7px 14px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Montserrat',sans-serif;color:var(--tsoft);transition:all .12s;}
+.vtgl-btn.on{background:var(--blue);color:#fff;}
+.vtgl-btn:hover:not(.on){background:var(--bg2);}
+
+/* ── STATS STRIP ── */
+.stats{display:flex;gap:0;background:var(--white);border-bottom:2px solid var(--border);overflow-x:auto;}
+.stat{padding:10px 20px;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .14s;min-width:90px;}
+.stat:hover,.stat.active{border-bottom-color:var(--blue);background:var(--blt);}
+.stat-n{font-size:20px;font-weight:900;font-family:'DM Mono',monospace;line-height:1;}
+.stat-l{font-size:8.5px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--tsoft);}
+.prog-wrap{padding:7px 32px;background:var(--white);border-bottom:1px solid var(--border);}
+.prog-row{display:flex;justify-content:space-between;font-size:10px;font-weight:600;color:var(--tsoft);margin-bottom:4px;}
+.prog-track{height:5px;background:var(--bg2);border-radius:3px;overflow:hidden;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--blue),#34D399);border-radius:3px;transition:width .5s ease;}
+
+/* ── LANE (KANBAN) VIEW ── */
+.lane-wrap{display:flex;gap:14px;padding:20px 32px;overflow-x:auto;align-items:flex-start;}
+.lane{flex:0 0 280px;display:flex;flex-direction:column;gap:10px;}
+.lane-hdr{display:flex;align-items:center;justify-content:space-between;padding:0 4px 6px;}
+.lane-label{font-size:10px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;}
+.lane-count{font-size:10px;font-weight:700;font-family:'DM Mono',monospace;color:var(--tsoft);}
+.card{background:var(--white);border-radius:var(--radius);border:1.5px solid var(--border);padding:13px 14px;cursor:pointer;transition:box-shadow .14s,transform .14s;position:relative;overflow:hidden;}
+.card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;}
+.card:hover{box-shadow:var(--shadow);transform:translateY(-2px);}
+.card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:7px;}
+.card-name{font-size:13px;font-weight:800;line-height:1.25;}
+.chip{font-size:8.5px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap;flex-shrink:0;}
+.card-action{font-size:11px;color:var(--tmid);line-height:1.4;margin-bottom:6px;}
+.card-footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:5px;}
+.av{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:900;color:#fff;flex-shrink:0;}
+.card-lead{display:flex;align-items:center;gap:5px;font-size:10.5px;font-weight:700;color:var(--tmid);}
+.due-chip{font-size:9px;font-weight:700;font-family:'DM Mono',monospace;padding:2px 8px;border-radius:20px;}
+.due-over{background:#FFE5E5;color:#A82318;}
+.due-soon{background:var(--amlt);color:var(--amber);}
+.due-ok{background:var(--grlt);color:var(--green);}
+.key-badge{font-size:7.5px;font-weight:800;padding:1px 6px;border-radius:10px;background:var(--blt);color:var(--blue);letter-spacing:.5px;text-transform:uppercase;}
+.method-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+
+/* ── TABLE VIEW ── */
+.tbl-wrap{padding:20px 32px;overflow-x:auto;}
+table{width:100%;border-collapse:collapse;background:var(--white);border-radius:12px;overflow:hidden;box-shadow:var(--shadow);}
+th{background:var(--navy);color:rgba(255,255,255,0.7);font-size:9px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;padding:11px 14px;text-align:left;}
+td{padding:10px 14px;font-size:11.5px;border-bottom:1px solid var(--border);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:var(--bg);}
+tr{cursor:pointer;}
+
+/* ── DASHBOARD ── */
+.dash-wrap{padding:20px 32px;display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;}
+.dcard{background:var(--white);border-radius:14px;padding:20px;border:1.5px solid var(--border);position:relative;overflow:hidden;}
+.dcard::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.dcard.blue::before{background:var(--blue);}
+.dcard.green::before{background:var(--green);}
+.dcard.amber::before{background:var(--amber);}
+.dcard.purple::before{background:var(--purple);}
+.dcard.navy::before{background:var(--navy);}
+.dcard.multi::before{background:linear-gradient(90deg,var(--green),var(--blue),var(--amber),var(--gray));}
+.dc-title{font-size:9.5px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;color:var(--tsoft);margin-bottom:14px;}
+.dc-sub{font-size:10px;color:var(--tsoft);margin-top:3px;font-weight:500;}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:0;}
+.kpi{background:var(--bg);border-radius:10px;padding:14px 16px;text-align:center;}
+.kpi-n{font-size:28px;font-weight:900;font-family:'DM Mono',monospace;line-height:1;}
+.kpi-l{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--tsoft);margin-top:4px;}
+.funnel{display:flex;flex-direction:column;gap:8px;}
+.funnel-row{display:flex;align-items:center;gap:10px;}
+.funnel-label{font-size:11px;font-weight:700;color:var(--text);min-width:140px;}
+.funnel-track{flex:1;height:28px;background:var(--bg);border-radius:6px;overflow:hidden;position:relative;}
+.funnel-fill{height:100%;border-radius:6px;display:flex;align-items:center;padding-left:10px;transition:width .6s cubic-bezier(.4,0,.2,1);}
+.funnel-val{font-size:11px;font-weight:800;color:#fff;font-family:'DM Mono',monospace;}
+.funnel-pct{font-size:10px;color:var(--tsoft);min-width:36px;text-align:right;}
+.seg-bar-wrap{display:flex;flex-direction:column;gap:10px;}
+.seg-row{display:flex;flex-direction:column;gap:4px;}
+.seg-row-top{display:flex;justify-content:space-between;align-items:center;}
+.seg-name{font-size:11px;font-weight:700;color:var(--text);}
+.seg-count{font-size:10px;color:var(--tsoft);font-family:'DM Mono',monospace;}
+.seg-track{height:10px;background:var(--bg);border-radius:5px;overflow:hidden;display:flex;}
+.seg-seg{height:100%;transition:width .6s;}
+.lead-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.lead-av-lg{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#fff;flex-shrink:0;}
+.lead-name-lg{font-size:12px;font-weight:700;min-width:64px;}
+.lead-track{flex:1;height:22px;background:var(--bg);border-radius:5px;overflow:hidden;display:flex;}
+.lead-seg{height:100%;transition:width .6s;}
+.lead-total{font-size:11px;font-weight:800;color:var(--tsoft);font-family:'DM Mono',monospace;min-width:22px;text-align:right;}
+.ka-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;}
+.ka-card{background:var(--bg);border-radius:10px;padding:12px 14px;border-left:4px solid transparent;}
+.ka-name{font-size:11.5px;font-weight:800;color:var(--text);margin-bottom:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ka-dots{display:flex;gap:6px;flex-wrap:wrap;}
+.ka-dot-wrap{display:flex;flex-direction:column;align-items:center;gap:3px;}
+.ka-dot{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;}
+.ka-dot-lbl{font-size:7.5px;font-weight:700;text-transform:uppercase;color:var(--tsoft);letter-spacing:.5px;}
+.rev-row{display:flex;align-items:center;gap:10px;margin-bottom:9px;}
+.rev-name{font-size:11px;font-weight:700;min-width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.rev-bar-wrap{flex:1;height:20px;background:var(--bg);border-radius:5px;overflow:hidden;position:relative;}
+.rev-bar{height:100%;border-radius:5px;display:flex;align-items:center;padding-left:8px;}
+.rev-val{font-size:9.5px;font-weight:700;color:#fff;white-space:nowrap;font-family:'DM Mono',monospace;}
+.rev-stage-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.urg-row{display:flex;align-items:flex-start;gap:12px;padding:8px 0;border-bottom:1px solid var(--border);}
+.urg-row:last-child{border-bottom:none;}
+.urg-date{font-size:10.5px;font-weight:700;color:var(--amber);font-family:'DM Mono',monospace;min-width:80px;}
+.urg-name{font-size:12px;font-weight:700;}
+.urg-action{font-size:10.5px;color:var(--tmid);line-height:1.4;margin-top:1px;}
+.donut-wrap{display:flex;align-items:center;gap:20px;}
+.donut-legend{display:flex;flex-direction:column;gap:8px;}
+.dl-row{display:flex;align-items:center;gap:8px;}
+.dl-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.dl-text{font-size:11px;font-weight:600;color:var(--text);}
+.dl-count{font-size:11px;color:var(--tsoft);font-family:'DM Mono',monospace;margin-left:4px;}
+
+/* ── MODAL ── */
+.ov{display:none;position:fixed;inset:0;background:rgba(0,15,40,0.6);z-index:1000;align-items:flex-start;justify-content:center;backdrop-filter:blur(6px);padding:20px 16px;overflow-y:auto;}
+.ov.open{display:flex;}
+.mbox{background:#fff;border-radius:16px;width:100%;max-width:800px;box-shadow:0 20px 60px rgba(0,19,47,0.22);margin:auto;}
+.mhdr{padding:20px 24px 14px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;}
+.m-ttl{font-size:18px;font-weight:800;}
+.m-sub{font-size:12px;color:var(--tsoft);margin-top:3px;}
+.mcls{width:32px;height:32px;border-radius:8px;border:none;background:var(--bg);cursor:pointer;font-size:19px;color:var(--tmid);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.mcls:hover{background:var(--bg2);}
+.mbody{padding:20px 24px;}
+.msec{font-size:9.5px;font-weight:800;letter-spacing:1.8px;text-transform:uppercase;color:var(--blue);margin:18px 0 10px;padding-bottom:5px;border-bottom:1px solid var(--blt);}
+.msec:first-child{margin-top:0;}
+.fgg{display:grid;grid-template-columns:1fr 1fr;gap:11px;}
+.fg{display:flex;flex-direction:column;gap:4px;}
+.fg.full{grid-column:1/-1;}
+.fl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--tsoft);}
+.fi,.fs,.ft{border:1.5px solid var(--border);border-radius:8px;padding:8px 11px;font-size:12.5px;font-family:'Montserrat',sans-serif;color:var(--text);outline:none;width:100%;background:var(--bg);transition:border-color .14s;}
+.fi:focus,.fs:focus,.ft:focus{border-color:var(--blue);background:#fff;}
+.ft{resize:vertical;min-height:60px;}
+.dlist{display:flex;flex-direction:column;gap:7px;}
+.dl-item{display:flex;gap:7px;align-items:flex-start;background:var(--bg);border-radius:8px;padding:8px 10px;border:1.5px solid var(--border);}
+.dl-item:focus-within{border-color:var(--blue);}
+.dl-fields{flex:1;display:flex;flex-wrap:wrap;gap:6px;}
+.dl-fields input,.dl-fields select{border:none;outline:none;background:transparent;font-size:12px;font-family:'Montserrat',sans-serif;color:var(--text);flex:1;min-width:100px;}
+.dl-fields input::placeholder{color:var(--tsoft);}
+.dl-del{background:none;border:none;cursor:pointer;color:var(--tsoft);font-size:16px;padding:0 2px;line-height:1;}
+.dl-del:hover{color:#A82318;}
+.btn-add{background:none;border:1.5px dashed var(--border);border-radius:8px;padding:7px 13px;font-size:11.5px;font-weight:600;color:var(--blue);cursor:pointer;font-family:'Montserrat',sans-serif;width:100%;text-align:left;transition:all .13s;margin-top:5px;}
+.btn-add:hover{border-color:var(--blue);background:var(--blt);}
+.mfoot{padding:13px 24px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+.mfoot-l{font-size:10.5px;color:var(--tsoft);}
+
+/* detail view inside modal */
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.detail-section{background:var(--bg);border-radius:10px;padding:14px;}
+.detail-section.full{grid-column:1/-1;}
+.ds-title{font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--tsoft);margin-bottom:10px;}
+.ds-lead{display:flex;align-items:center;gap:10px;}
+.ds-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#fff;}
+.ds-lead-name{font-size:14px;font-weight:800;}
+.ds-lead-title{font-size:11px;color:var(--tsoft);margin-top:1px;}
+.team-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;}
+.team-pill{display:flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--border);border-radius:20px;padding:4px 10px 4px 5px;}
+.team-av{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:800;color:#fff;}
+.team-nm{font-size:10.5px;font-weight:700;color:var(--text);}
+.team-role{font-size:9.5px;color:var(--tsoft);}
+.contact-card{background:#fff;border-radius:8px;padding:8px 11px;border:1px solid var(--border);margin-bottom:6px;display:flex;align-items:flex-start;justify-content:space-between;}
+.cc-name{font-size:12px;font-weight:700;}
+.cc-title{font-size:10.5px;color:var(--tsoft);margin-top:1px;}
+.cc-dept{font-size:9.5px;color:var(--tsoft);}
+.rel-badge{font-size:8.5px;font-weight:700;padding:2px 8px;border-radius:10px;background:var(--blt);color:var(--blue);flex-shrink:0;margin-top:2px;}
+.next-box{background:var(--blt);border-left:3px solid var(--blue);border-radius:8px;padding:10px 14px;}
+.next-label{font-size:9px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--blue);margin-bottom:4px;}
+.next-text{font-size:12.5px;color:var(--text);line-height:1.5;}
+.due-text{font-size:11px;font-weight:700;color:var(--amber);font-family:'DM Mono',monospace;margin-top:5px;}
+.notes-text{font-size:12px;color:var(--tmid);line-height:1.6;}
+.info-row{display:flex;gap:8px;margin-bottom:6px;align-items:flex-start;}
+.info-lbl{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--tsoft);min-width:80px;padding-top:1px;}
+.info-val{font-size:12px;color:var(--text);font-weight:600;}
+
+/* ── LOADING / EMPTY STATES ── */
+.loading-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 32px;gap:16px;}
+.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading-text{font-size:12px;color:var(--tsoft);font-weight:600;}
+.empty-state{padding:60px 32px;text-align:center;color:var(--tsoft);}
+
+/* ── DELETE BUTTON ── */
+.btn-danger{background:#A82318;color:#fff;border:none;border-radius:8px;padding:7px 15px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Montserrat',sans-serif;transition:all .14s;}
+.btn-danger:hover{background:#8a1d14;}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-l">
+    <!-- RCM Logo (inline SVG text fallback) -->
+    <svg class="logo" viewBox="0 0 120 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <text x="4" y="26" font-family="Montserrat,sans-serif" font-weight="900" font-size="22" fill="#ffffff">RCM</text>
+    </svg>
+    <div class="vline"></div>
+    <div>
+      <div class="app-title">Client Pursuit Tracker</div>
+      <div class="app-sub">Bi-Weekly Checkpoint · Energy Services</div>
+    </div>
+  </div>
+  <div class="hdr-r">
+    <!-- Sync status badge (new — shows Firebase connection state) -->
+    <div class="sync-badge offline" id="sync-badge">
+      <div class="sync-dot"></div>
+      <span id="sync-text">Connecting…</span>
+    </div>
+    <div class="hdr-date" id="hdate"></div>
+    <button class="btn btn-o" onclick="exportCSV()">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Export CSV
+    </button>
+    <button class="btn btn-p" onclick="openNew()">+ Add Account</button>
+  </div>
+</div>
+<div class="blue-stripe"></div>
+
+<!-- ACTIONS PANEL -->
+<div class="act-wrap" id="act-wrap"></div>
+
+<!-- STATS -->
+<div class="stats" id="stats-strip"></div>
+<div class="prog-wrap">
+  <div class="prog-row"><span>Portfolio Engagement Rate</span><strong id="prog-pct">0%</strong></div>
+  <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+</div>
+
+<!-- SEARCH BAR -->
+<div class="bar">
+  <div class="sbox">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input id="q" type="text" placeholder="Search accounts, contacts, team…" oninput="render()">
+  </div>
+  <select class="fsel" id="f-seg" onchange="render()">
+    <option value="">All Segments</option>
+    <option>Utility</option><option>OEM</option><option>Strategic Partner</option><option>EPC / Contractor</option>
+  </select>
+  <select class="fsel" id="f-lead" onchange="render()">
+    <option value="">All Leads</option>
+    <option>Laith</option><option>Ameen</option><option>Samantha</option><option>Hans</option><option>Adam</option>
+  </select>
+  <div class="spacer"></div>
+  <div class="vtgl">
+    <button class="vtgl-btn on" id="vbtn-lane" onclick="setView('lane',this)">Portfolio</button>
+    <button class="vtgl-btn" id="vbtn-table" onclick="setView('table',this)">Table</button>
+    <button class="vtgl-btn" id="vbtn-dash" onclick="setView('dash',this)">📊 Dashboard</button>
+  </div>
+</div>
+
+<div id="content"></div>
+
+<!-- ── MODAL ── -->
+<div class="ov" id="ov">
+  <div class="mbox">
+    <div class="mhdr">
+      <div><div class="m-ttl" id="m-ttl">Account</div><div class="m-sub" id="m-sub"></div></div>
+      <button class="mcls" onclick="closeModal()">×</button>
+    </div>
+    <div class="mbody" id="m-body"></div>
+    <div class="mfoot">
+      <div class="mfoot-l" id="m-mod"></div>
+      <div style="display:flex;gap:9px">
+        <button class="btn-danger" id="m-del-btn" style="display:none" onclick="deleteAccount()">Delete</button>
+        <button class="btn btn-o" style="background:var(--bg);color:var(--tmid);border:1.5px solid var(--border)" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-p" id="m-edit-btn" onclick="switchToEdit()">Edit Account</button>
+        <button class="btn btn-p" id="m-save-btn" style="display:none" onclick="saveAccount()">Save Account</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── FIREBASE SDK (free, loaded from CDN) ── -->
+<script type="module">
+// ─────────────────────────────────────────────────────────────────────
+//  FIREBASE SETUP
+//  This loads Firebase v10 from Google's CDN (free, no install needed)
+//  and connects to your Firestore database.
+// ─────────────────────────────────────────────────────────────────────
+import { initializeApp }                               from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, doc, onSnapshot,
+         addDoc, updateDoc, deleteDoc, serverTimestamp,
+         query, orderBy }                              from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// Load config from the separate file you filled in
+// (If you see "PASTE_YOUR" still in the config, stop and fill firebase-config.js first)
+const { FIREBASE_CONFIG } = await import("./firebase-config.js");
+
+// ── INIT ──────────────────────────────────────────────────────────────
+const app = initializeApp(FIREBASE_CONFIG);
+const db  = getFirestore(app);
+const COL = "accounts"; // Firestore collection name
+
+// ── LIVE DATA STORE (replaces the old hardcoded `let accounts = [...]`) ──
+let accounts  = [];    // populated in real-time by onSnapshot below
+let editDocId = null;  // Firestore document ID of the account being edited
+let modalMode = "detail";
+let currentView = "lane";
+let stageFilter = "";
+
+// ─────────────────────────────────────────────────────────────────────
+//  REAL-TIME LISTENER
+//  onSnapshot fires immediately with current data, then again every
+//  time any user adds / edits / deletes an account. All 3-5 team
+//  members see updates within ~1 second with no page refresh.
+// ─────────────────────────────────────────────────────────────────────
+const q = query(collection(db, COL), orderBy("name"));
+const unsubscribe = onSnapshot(q,
+  (snapshot) => {
+    // Rebuild the accounts array from Firestore documents
+    accounts = snapshot.docs.map(d => ({ _id: d.id, ...d.data() }));
+    setSyncStatus("live");
+    renderStats();
+    renderActions();
+    render();
+  },
+  (err) => {
+    console.error("Firestore error:", err);
+    setSyncStatus("offline");
+  }
+);
+
+// ─────────────────────────────────────────────────────────────────────
+//  SYNC STATUS BADGE
+// ─────────────────────────────────────────────────────────────────────
+function setSyncStatus(state) {
+  const badge = document.getElementById("sync-badge");
+  const text  = document.getElementById("sync-text");
+  badge.className = "sync-badge " + state;
+  text.textContent = state === "live" ? "Live" : state === "saving" ? "Saving…" : "Offline";
+}
+
+// ─────────────────────────────────────────────────────────────────────
+//  CONSTANTS (unchanged from original)
+// ─────────────────────────────────────────────────────────────────────
+const LANE_CFG = [
+  {key:"MSA",              label:"MSA / Contracted",       color:"#0A6B49", bg:"#D4F0E4", chip_bg:"#D4F0E4", chip_tc:"#0A6B49"},
+  {key:"Follow-Up Needed", label:"Follow-Up Needed",       color:"#1061E9", bg:"#E0EAFF", chip_bg:"#E0EAFF", chip_tc:"#1061E9"},
+  {key:"Contacted / Waiting",label:"Contacted / Waiting",  color:"#7A5500", bg:"#FFF0CC", chip_bg:"#FFF0CC", chip_tc:"#7A5500"},
+  {key:"Cold",             label:"Cold / Not Started",      color:"#7A8FB0", bg:"#EEF1F8", chip_bg:"#EEF1F8", chip_tc:"#7A8FB0"},
+];
+const LEAD_COLOR = {
+  "Laith":"#1061E9","Ameen":"#0A6B49","Samantha":"#3E2685",
+  "Hans":"#7A5500","Adam":"#083175","Rimer":"#A82318","Kevin":"#445070","Ryan":"#7A5500","Naz":"#0A6B49"
+};
+const METHOD_COLOR = {
+  "In-Person":"#0A6B49","Email":"#1061E9","Call":"#7A5500",
+  "LinkedIn":"#083175","Conference":"#3E2685","Research":"#7A8FB0","None":"#BBC5DE","Meeting Done":"#0A6B49"
+};
+const RCM_PEOPLE = ["Laith Nadhim","Ameen Shakir","Samantha Trinh","Hans Candia","Adam Addesso",
+  "Rimer Sanchez","Stefan Patz","Pablo Abad","Zoran Nesovanovic","Naz","Kevin Kline","Ryan","Jami Schievelbein","Tim"];
+const REL_TYPES = ["Champion","Technical","Decision Maker","Key Buyer","Target","Identified","Introducer","Intel","Meeting Coordinator","Pending"];
+
+// ─────────────────────────────────────────────────────────────────────
+//  HELPERS (unchanged from original)
+// ─────────────────────────────────────────────────────────────────────
+function lc(name)   { return LEAD_COLOR[name] || "#445070"; }
+function ini(name)  { const p = name.trim().split(" "); return (p[0][0] + (p[1] ? p[1][0] : "")).toUpperCase(); }
+function fd(d)      { if (!d) return ""; const p = d.split("-"); if (p.length !== 3) return d; return p[1]+"-"+p[2]+"-"+p[0]; }
+function laneCfg(s) { return LANE_CFG.find(l => l.key === s) || LANE_CFG[3]; }
+function sv(id, v)  { const e = document.getElementById(id); if (e) e.value = v || ""; }
+function esc(s)     { return String(s || "").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+// ─────────────────────────────────────────────────────────────────────
+//  INIT
+// ─────────────────────────────────────────────────────────────────────
+document.getElementById("hdate").textContent =
+  new Date().toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"});
+document.getElementById("content").innerHTML =
+  `<div class="loading-wrap"><div class="spinner"></div><div class="loading-text">Connecting to shared database…</div></div>`;
+
+// ─────────────────────────────────────────────────────────────────────
+//  FILTER (unchanged from original)
+// ─────────────────────────────────────────────────────────────────────
+function filtered() {
+  const q    = document.getElementById("q").value.toLowerCase();
+  const seg  = document.getElementById("f-seg").value;
+  const lead = document.getElementById("f-lead").value;
+  return accounts.filter(a => {
+    const t = [a.name, a.lead, a.seg, a.notes, a.nextAction,
+      (a.team||[]).map(m=>m.name).join(" "),
+      (a.clientContacts||[]).map(c=>c.name+" "+c.title).join(" ")
+    ].join(" ").toLowerCase();
+    if (q    && !t.includes(q))        return false;
+    if (seg  && a.seg   !== seg)       return false;
+    if (lead && a.lead  !== lead)      return false;
+    if (stageFilter && a.stage !== stageFilter) return false;
+    return true;
+  });
+}
+
+// ─────────────────────────────────────────────────────────────────────
+//  STATS STRIP (unchanged from original)
+// ─────────────────────────────────────────────────────────────────────
+function renderStats() {
+  const total   = accounts.length;
+  const engaged = accounts.filter(a => a.stage !== "Cold").length;
+  const pct     = total ? Math.round(engaged / total * 100) : 0;
+  document.getElementById("prog-pct").textContent  = pct + "%";
+  document.getElementById("prog-fill").style.width = pct + "%";
+  const strip = document.getElementById("stats-strip");
+  const defs = [
+    {cls:"stat-all",  label:"All Accounts", val:total, key:""},
+    {cls:"stat-msa",  label:"MSA",          val:accounts.filter(a=>a.stage==="MSA").length,                  key:"MSA"},
+    {cls:"stat-fup",  label:"Follow-Up",    val:accounts.filter(a=>a.stage==="Follow-Up Needed").length,     key:"Follow-Up Needed"},
+    {cls:"stat-cont", label:"Contacted",    val:accounts.filter(a=>a.stage==="Contacted / Waiting").length,  key:"Contacted / Waiting"},
+    {cls:"stat-cold", label:"Cold",         val:accounts.filter(a=>a.stage==="Cold").length,                 key:"Cold"},
+    {cls:"stat-key",  label:"Key Accounts", val:accounts.filter(a=>a.keyAccount).length,                     key:"__key__"},
+  ];
+  strip.innerHTML = defs.map(d => `
+    <div class="stat ${stageFilter===d.key?'active':''}" onclick="setStageFilter('${d.key}')">
+      <div class="stat-n">${d.val}</div>
+      <div class="stat-l">${d.label}</div>
+    </div>`).join("");
+}
+
+function setStageFilter(k) {
+  stageFilter = stageFilter === k ? "" : k;
+  renderStats();
+  render();
+}
+
+// ─────────────────────────────────────────────────────────────────────
+//  ACTIONS PANEL (unchanged from original)
+// ─────────────────────────────────────────────────────────────────────
+function renderActions() {
+  const today = new Date().toISOString().split("T")[0];
+  const soon  = new Date(Date.now() + 14*24*3600*1000).toISOString().split("T")[0];
+  const due   = accounts
+    .filter(a => a.nextDate && a.nextDate <= soon && a.stage !== "Cold")
+    .sort((a,b) => a.nextDate < b.nextDate ? -1 : 1)
+    .slice(0, 8);
+  document.getElementById("act-wrap").innerHTML =
+    `<div class="act-title">Actions Due — Next 14 Days</div>` +
+    (due.length
+      ? `<div class="act-grid">${due.map(a=>{
+          const idx = accounts.indexOf(a);
+          const over = a.nextDate < today;
+          return `<div class="act-card" onclick="openDetail(${idx})">
+            <div class="act-name">${esc(a.name)}</div>
+            <div class="act-action">${esc(a.nextAction||"")}</div>
+            <div class="act-due ${over?'due-over':''}">${fd(a.nextDate)}</div>
+          </div>`;
+        }).join("")}</div>`
+      : `<div style="font-size:11.5px;color:var(--tsoft);font-style:italic">No actions due in the next 14 days.</div>`
+    );
+}
+
+// ─────────────────────────────────────────────────────────────────────
+//  VIEW SWITCHER
+// ─────────────────────────────────────────────────────────────────────
+function setView(v, btn) {
+  currentView = v;
+  document.querySelectorAll(".vtgl-btn").forEach(b => b.classList.remove("on"));
+  btn.classList.add("on");
+  render();
+}
+window.setView = setView;
+
+function render() {
+  const arr = filtered();
+  if (currentView === "lane")       renderLane(arr);
+  else if (currentView === "table") renderTable(arr);
+  else                              renderDashboard();
+}
+window.render = render;
+
+// ─────────────────────────────────────────────────────────────────────
+//  LANE (KANBAN) VIEW (unchanged from original)
+// ─────────────────────────────────────────────────────────────────────
+function renderLane(arr) {
+  const today = new Date().toISOString().split("T")[0];
+  const soon  = new Date(Date.now() + 7*24*3600*1000).toISOString().split("T")[0];
+  document.getElementById("content").innerHTML =
+    `<div class="lane-wrap">${LANE_CFG.map(lc2 => {
+      const cards = arr.filter(a => a.stage === lc2.key);
+      return `<div class="lane">
+        <div class="lane-hdr">
+          <div class="lane-label" style="color:${lc2.color}">${lc2.label}</div>
+          <div class="lane-count">${cards.length}</div>
+        </div>
+        ${cards.map(a => {
+          const idx  = accounts.indexOf(a);
+          const cfg  = laneCfg(a.stage);
+          const over = a.nextDate && a.nextDate < today;
+          const near = a.nextDate && !over && a.nextDate <= soon;
+          return `<div class="card" style="border-color:${cfg.color}20" onclick="openDetail(${idx})">
+            <div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:${cfg.color};border-radius:12px 0 0 12px;"></div>
+            <div class="card-top">
+              <div class="card-name">${esc(a.name)}</div>
+              <span class="chip" style="background:${cfg.chip_bg};color:${cfg.chip_tc}">${a.seg||""}</span>
+            </div>
+            ${a.nextAction?`<div class="card-action">${esc(a.nextAction)}</div>`:""}
+            <div class="card-footer">
+              <div class="card-lead">
+                <div class="av" style="background:${lc(a.lead)}">${ini(a.lead||"?")}</div>
+                ${esc(a.lead||"")}
+              </div>
+              <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap">
+                ${a.keyAccount?`<span class="key-badge">⭐ Key</span>`:""}
+                ${a.nextDate?`<span class="due-chip ${over?"due-over":near?"due-soon":"due-ok"}">${fd(a.nextDate)}</span>`:""}
+                ${a.method?`<div class="method-dot" title="${esc(a.method)}" style="background:${METHOD_COLOR[a.method]||"#BBC5DE"}"></div>`:""}
+              </div>
+            </div>
+          </div>`;
+        }).join("")}
+      </div>`;
+    }).join("")}</div>`;
+}
+
+// ─────────────────────────────────────────────────────────────────────
+//  TABLE VIEW (unchanged from original)
+// ─────────────────────────────────────────────────────────────────────
+function renderTable(arr) {
+  document.getElementById("content").innerHTML = `
+    <div class="tbl-wrap"><table>
+      <thead><tr>
+        <th>Account</th><th>Segment</th><th>Stage</th><th>Lead</th>
+        <th>Next Action</th><th>Next Due</th><th>Last Contact</th><th>Revenue</th>
+      </tr></thead>
+      <tbody>${arr.map(a => {
+        const idx = accounts.indexOf(a);
+        const cfg = laneCfg(a.stage);
+        return `<tr onclick="openDetail(${idx})">
+          <td><strong>${esc(a.name)}</strong>${a.keyAccount?` <span class="key-badge">⭐</span>`:""}</td>
+          <td>${esc(a.seg||"")}</td>
+          <td><span class="chip" style="background:${cfg.chip_bg};color:${cfg.chip_tc}">${esc(a.stage||"")}</span></td>
+          <td><div style="display:flex;align-items:center;gap:6px"><div class="av" style="background:${lc(a.lead)};width:20px;height:20px;font-size:7px">${ini(a.lead||"?")}</div>${esc(a.lead||"")}</div></td>
+          <td style="max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(a.nextAction||"")}</td>
+          <td style="font-family:'DM Mono',monospace;font-size:11px">${fd(a.nextDate)}</td>
+          <td style="font-family:'DM Mono',monospace;font-size:11px">${fd(a.lastDate)}</td>
+          <td style="font-size:11px">${esc(a.revenue||"")}</td>
+        </tr>`;
+      }).join("")}</tbody>
+    </table></div>`;
+}
+
+// ─────────────────────────────────────────────────────────────────────
+//  DETAIL MODAL (unchanged from original)
+// ─────────────────────────────────────────────────────────────────────
+function openDetail(idx) {
+  const a = accounts[idx];
+  if (!a) return;
+  editDocId = a._id; // store Firestore doc ID for save/delete
+  modalMode = "detail";
+  document.getElementById("m-ttl").textContent  = a.name;
+  document.getElementById("m-sub").textContent  = (a.seg||"") + (a.stage ? " · " + a.stage : "");
+  document.getElementById("m-mod").textContent  = a.lastModified ? "Last updated: " + a.lastModified : "";
+  document.getElementById("m-edit-btn").style.display = "";
+  document.getElementById("m-save-btn").style.display = "none";
+  document.getElementById("m-del-btn").style.display  = "";
+  const cfg = laneCfg(a.stage);
+  document.getElementById("m-body").innerHTML = `
+    <div class="detail-grid">
+      <div class="detail-section">
+        <div class="ds-title">RCM Lead</div>
+        <div class="ds-lead">
+          <div class="ds-av" style="background:${lc(a.lead)}">${ini(a.lead||"?")}</div>
+          <div><div class="ds-lead-name">${esc(a.lead||"")}</div><div class="ds-lead-title">${esc(a.leadTitle||"")}</div></div>
+        </div>
+        ${(a.team||[]).length?`<div class="team-row">${(a.team||[]).map(m=>`
+          <div class="team-pill">
+            <div class="team-av" style="background:${lc(m.name.split(" ")[0])}">${ini(m.name||"?")}</div>
+            <div><div class="team-nm">${esc(m.name)}</div><div class="team-role">${esc(m.role||"")}</div></div>
+          </div>`).join("")}</div>`:""}
+      </div>
+      <div class="detail-section">
+        <div class="ds-title">Account Info</div>
+        <div class="info-row"><div class="info-lbl">Segment</div><div class="info-val">${esc(a.seg||"")}</div></div>
+        <div class="info-row"><div class="info-lbl">Stage</div><div class="info-val"><span class="chip" style="background:${cfg.chip_bg};color:${cfg.chip_tc}">${esc(a.stage||"")}</span></div></div>
+        <div class="info-row"><div class="info-lbl">Key Acct</div><div class="info-val">${a.keyAccount?"⭐ Yes":"No"}</div></div>
+        <div class="info-row"><div class="info-lbl">Revenue</div><div class="info-val">${esc(a.revenue||"—")}</div></div>
+        <div class="info-row"><div class="info-lbl">Last Method</div><div class="info-val">${esc(a.method||"—")}</div></div>
+      </div>
+      ${(a.clientContacts||[]).length?`
+      <div class="detail-section full">
+        <div class="ds-title">Client Contacts</div>
+        ${(a.clientContacts||[]).map(c=>`
+          <div class="contact-card">
+            <div><div class="cc-name">${esc(c.name)}</div><div class="cc-title">${esc(c.title||"")}</div><div class="cc-dept">${esc(c.dept||"")}</div></div>
+            <span class="rel-badge">${esc(c.rel||"")}</span>
+          </div>`).join("")}
+      </div>`:""}
+      <div class="detail-section full">
+        <div class="ds-title">Next Action</div>
+        <div class="next-box">
+          <div class="next-label">Action</div>
+          <div class="next-text">${esc(a.nextAction||"No action set")}</div>
+          ${a.nextDate?`<div class="due-text">Due: ${fd(a.nextDate)}</div>`:""}
+        </div>
+      </div>
+      ${a.notes?`<div class="detail-section full"><div class="ds-title">Notes</div><div class="notes-text">${esc(a.notes)}</div></div>`:""}
+    </div>`;
+  document.getElementById("ov").classList.add("open");
+}
+window.openDetail = openDetail;
+
+// ─────────────────────────────────────────────────────────────────────
+//  EDIT MODAL — builds the edit form
+// ─────────────────────────────────────────────────────────────────────
+function switchToEdit() {
+  // Find account by its Firestore doc ID
+  const a = editDocId ? accounts.find(x => x._id === editDocId) : {};
+  if (!a && editDocId) return;
+  const src = a || {};
+  modalMode = "edit";
+  document.getElementById("m-edit-btn").style.display = "none";
+  document.getElementById("m-save-btn").style.display = "";
+  document.getElementById("m-del-btn").style.display  = editDocId ? "" : "none";
+  document.getElementById("m-ttl").textContent = editDocId ? "Edit Account" : "New Account";
+  document.getElementById("m-sub").textContent = "";
+  document.getElementById("m-body").innerHTML = `
+    <div class="msec">Core Details</div>
+    <div class="fgg">
+      <div class="fg full"><label class="fl">Account Name</label><input class="fi" id="f-name" value="${esc(src.name||"")}"></div>
+      <div class="fg"><label class="fl">Segment</label>
+        <select class="fs" id="f-seg2">
+          ${["Utility","OEM","Strategic Partner","EPC / Contractor"].map(o=>`<option${src.seg===o?" selected":""}>${o}</option>`).join("")}
+        </select>
+      </div>
+      <div class="fg"><label class="fl">Stage</label>
+        <select class="fs" id="f-stage2">
+          ${["MSA","Follow-Up Needed","Contacted / Waiting","Cold"].map(o=>`<option${src.stage===o?" selected":""}>${o}</option>`).join("")}
+        </select>
+      </div>
+      <div class="fg"><label class="fl">Key Account</label>
+        <select class="fs" id="f-key">
+          <option value="0"${!src.keyAccount?" selected":""}>No</option>
+          <option value="1"${src.keyAccount?" selected":""}>Yes — ⭐ Key Account</option>
+        </select>
+      </div>
+      <div class="fg"><label class="fl">RCM Lead</label>
+        <select class="fs" id="f-lead">
+          ${["Laith","Ameen","Samantha","Hans","Adam","Rimer","Kevin","Naz","Ryan"].map(o=>`<option${src.lead===o?" selected":""}>${o}</option>`).join("")}
+        </select>
+      </div>
+      <div class="fg full"><label class="fl">Lead Title</label><input class="fi" id="f-lead-title" value="${esc(src.leadTitle||"")}"></div>
+    </div>
+
+    <div class="msec">Engagement</div>
+    <div class="fgg">
+      <div class="fg"><label class="fl">Last Contact Method</label>
+        <select class="fs" id="f-method">
+          ${["In-Person","Email","Call","LinkedIn","Conference","Research","Meeting Done","None"].map(o=>`<option${src.method===o?" selected":""}>${o}</option>`).join("")}
+        </select>
+      </div>
+      <div class="fg"><label class="fl">Last Contact Date</label><input class="fi" id="f-lastdate" type="date" value="${esc(src.lastDate||"")}"></div>
+      <div class="fg"><label class="fl">Next Action Date</label><input class="fi" id="f-nextdate" type="date" value="${esc(src.nextDate||"")}"></div>
+      <div class="fg"><label class="fl">Revenue Estimate</label><input class="fi" id="f-revenue" value="${esc(src.revenue||"")}"></div>
+      <div class="fg full"><label class="fl">Next Action</label><input class="fi" id="f-nextaction" value="${esc(src.nextAction||"")}"></div>
+    </div>
+
+    <div class="msec">RCM Team</div>
+    <div class="dlist" id="team-list"></div>
+    <button class="btn-add" onclick="addTeamMember()">+ Add Team Member</button>
+
+    <div class="msec">Client Contacts</div>
+    <div class="dlist" id="contacts-list"></div>
+    <button class="btn-add" onclick="addContact()">+ Add Contact</button>
+
+    <div class="msec">Notes</div>
+    <div class="fg full"><textarea class="ft" id="f-notes" rows="3">${esc(src.notes||"")}</textarea></div>
+  `;
+  buildTeamList(src.team || []);
+  buildContactsList(src.clientContacts || []);
+}
+window.switchToEdit = switchToEdit;
+
+// ─────────────────────────────────────────────────────────────────────
+//  NEW ACCOUNT MODAL
+// ─────────────────────────────────────────────────────────────────────
+function openNew() {
+  editDocId = null; // null means "create new"
+  modalMode = "edit";
+  document.getElementById("m-edit-btn").style.display = "none";
+  document.getElementById("m-save-btn").style.display = "";
+  document.getElementById("m-del-btn").style.display  = "none";
+  document.getElementById("m-mod").textContent = "";
+  switchToEdit();
+  document.getElementById("m-ttl").textContent = "New Account";
+  document.getElementById("ov").classList.add("open");
+}
+window.openNew = openNew;
+
+function closeModal() { document.getElementById("ov").classList.remove("open"); }
+window.closeModal = closeModal;
+
+// ─────────────────────────────────────────────────────────────────────
+//  SAVE ACCOUNT — writes to Firestore (create or update)
+// ─────────────────────────────────────────────────────────────────────
+async function saveAccount() {
+  const data = {
+    name:           document.getElementById("f-name").value.trim(),
+    seg:            document.getElementById("f-seg2").value,
+    stage:          document.getElementById("f-stage2").value,
+    keyAccount:     document.getElementById("f-key").value === "1",
+    lead:           document.getElementById("f-lead").value,
+    leadTitle:      document.getElementById("f-lead-title").value.trim(),
+    team:           readTeamList(),
+    clientContacts: readContactsList(),
+    method:         document.getElementById("f-method").value,
+    lastDate:       document.getElementById("f-lastdate").value,
+    nextDate:       document.getElementById("f-nextdate").value,
+    nextAction:     document.getElementById("f-nextaction").value.trim(),
+    revenue:        document.getElementById("f-revenue").value.trim(),
+    notes:          document.getElementById("f-notes").value.trim(),
+    lastModified:   new Date().toISOString().split("T")[0],
+    updatedAt:      serverTimestamp(), // Firestore server timestamp for ordering
+  };
+  if (!data.name) { alert("Account name is required."); return; }
+
+  setSyncStatus("saving");
+  try {
+    if (editDocId) {
+      // UPDATE existing document
+      await updateDoc(doc(db, COL, editDocId), data);
+    } else {
+      // CREATE new document
+      await addDoc(collection(db, COL), data);
+    }
+    // onSnapshot fires automatically — no need to manually re-render
+    closeModal();
+  } catch (err) {
+    console.error("Save error:", err);
+    alert("Save failed: " + err.message);
+    setSyncStatus("offline");
+  }
+}
+window.saveAccount = saveAccount;
+
+// ─────────────────────────────────────────────────────────────────────
+//  DELETE ACCOUNT — removes from Firestore
+// ─────────────────────────────────────────────────────────────────────
+async function deleteAccount() {
+  if (!editDocId) return;
+  const a = accounts.find(x => x._id === editDocId);
+  if (!confirm(`Delete "${a?.name}"? This cannot be undone.`)) return;
+  setSyncStatus("saving");
+  try {
+    await deleteDoc(doc(db, COL, editDocId));
+    closeModal();
+  } catch (err) {
+    console.error("Delete error:", err);
+    alert("Delete failed: " + err.message);
+    setSyncStatus("offline");
+  }
+}
+window.deleteAccount = deleteAccount;
+
+// ─────────────────────────────────────────────────────────────────────
+//  TEAM LIST HELPERS (unchanged from original)
+// ─────────────────────────────────────────────────────────────────────
+function buildTeamList(members) {
+  document.getElementById("team-list").innerHTML = members.map((m, i) => `
+    <div class="dl-item">
+      <div class="dl-fields">
+        <input list="rcm-ppl" value="${esc(m.name||"")}" placeholder="Name" style="font-weight:600">
+        <input value="${esc(m.title||"")}" placeholder="Title">
+        <input value="${esc(m.role||"")}" placeholder="Role on account">
+      </div>
+      <button class="dl-del" onclick="removeTeam(${i})">×</button>
+    </div>`).join("") +
+    `<datalist id="rcm-ppl">${RCM_PEOPLE.map(p=>`<option value="${p}">`).join("")}</datalist>`;
+}
+function addTeamMember()  { buildTeamList([...readTeamList(), {name:"",title:"",role:""}]); }
+function removeTeam(i)    { const t = readTeamList(); t.splice(i,1); buildTeamList(t); }
+function readTeamList()   {
+  return Array.from(document.querySelectorAll("#team-list .dl-item")).map(el => {
+    const ins = el.querySelectorAll("input");
+    return { name:ins[0]?.value||"", title:ins[1]?.value||"", role:ins[2]?.value||"" };
+  }).filter(m => m.name.trim());
+}
+window.addTeamMember = addTeamMember;
+window.removeTeam    = removeTeam;
+
+// ─────────────────────────────────────────────────────────────────────
+//  CONTACTS LIST HELPERS (unchanged from original)
+// ─────────────────────────────────────────────────────────────────────
+function buildContactsList(contacts) {
+  document.getElementById("contacts-list").innerHTML = contacts.map((c, i) => `
+    <div class="dl-item">
+      <div class="dl-fields">
+        <input value="${esc(c.name||"")}" placeholder="Full name" style="font-weight:600;min-width:110px">
+        <input value="${esc(c.title||"")}" placeholder="Title / Position" style="min-width:110px">
+        <input value="${esc(c.dept||"")}" placeholder="Dept / Division" style="min-width:90px">
+        <select style="min-width:90px;font-size:11px">
+          ${["None","Email","Call","In-Person","LinkedIn","Conference","Research","Intel","Pending"].map(m=>`<option${c.method===m?" selected":""}>${m}</option>`).join("")}
+        </select>
+        <select style="min-width:110px;font-size:11px">
+          ${REL_TYPES.map(r=>`<option${c.rel===r?" selected":""}>${r}</option>`).join("")}
+        </select>
+      </div>
+      <button class="dl-del" onclick="removeContact(${i})">×</button>
+    </div>`).join("");
+}
+function addContact()     { buildContactsList([...readContactsList(), {name:"",title:"",dept:"",method:"None",rel:"Target"}]); }
+function removeContact(i) { const c = readContactsList(); c.splice(i,1); buildContactsList(c); }
+function readContactsList() {
+  return Array.from(document.querySelectorAll("#contacts-list .dl-item")).map(el => {
+    const ins  = el.querySelectorAll("input");
+    const sels = el.querySelectorAll("select");
+    return { name:ins[0]?.value||"", title:ins[1]?.value||"", dept:ins[2]?.value||"", method:sels[0]?.value||"None", rel:sels[1]?.value||"Target" };
+  }).filter(c => c.name.trim());
+}
+window.addContact     = addContact;
+window.removeContact  = removeContact;
+
+// ─────────────────────────────────────────────────────────────────────
+//  DASHBOARD (unchanged from original)
+// ─────────────────────────────────────────────────────────────────────
+function renderDashboard() {
+  const el    = document.getElementById("content");
+  const total = accounts.length;
+  const today = new Date().toISOString().split("T")[0];
+  const soon  = new Date(Date.now() + 30*24*3600*1000).toISOString().split("T")[0];
+
+  const stageOrder = ["MSA","Follow-Up Needed","Contacted / Waiting","Cold"];
+  const stageCols  = {"MSA":"#0A6B49","Follow-Up Needed":"#1061E9","Contacted / Waiting":"#7A5500","Cold":"#BBC5DE"};
+  const segs = [...new Set(accounts.map(a=>a.seg).filter(Boolean))];
+  const segCols = {"Utility":"#1061E9","OEM":"#0A6B49","Strategic Partner":"#7A5500","EPC / Contractor":"#BBC5DE"};
+  const leads = [...new Set(accounts.map(a=>a.lead).filter(Boolean))];
+  const keyAccts = accounts.filter(a=>a.keyAccount);
+  const urgent = accounts.filter(a=>a.nextDate && a.nextDate>=today && a.nextDate<=soon && a.stage!=="Cold")
+                         .sort((a,b)=>a.nextDate<b.nextDate?-1:1).slice(0,8);
+
+  // Donut SVG
+  const stageData = stageOrder.map(s=>({s,n:accounts.filter(a=>a.stage===s).length,c:stageCols[s]}));
+  let donutPaths="",da=0;
+  const r=50,cx=60,cy=60,stroke=20;
+  stageData.forEach(({n,c})=>{
+    if(!n)return;
+    const pct=n/total;const ang=pct*2*Math.PI;
+    const x1=cx+r*Math.sin(da),y1=cy-r*Math.cos(da);
+    const x2=cx+r*Math.sin(da+ang),y2=cy-r*Math.cos(da+ang);
+    const lg=pct>.5?1:0;
+    donutPaths+=`<path d="M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${lg} 1 ${x2} ${y2} Z" fill="${c}" stroke="#fff" stroke-width="2"/>`;
+    da+=ang;
+  });
+
+  const revMap = {"$3M–$8M/yr":5,"$2M–$6M/yr":4,"$2M–$5M/yr":3.5,"$1M–$4M/yr":2.5,"$1M–$3M/yr":2,"$500K–$2M/yr":1.25,"$500K–$1.5M/yr":1,"$250K–$1M/yr":0.6,"$100K–$500K/yr":0.3};
+  const withRev = accounts.filter(a=>a.revenue&&revMap[a.revenue]).sort((a,b)=>(revMap[b.revenue]||0)-(revMap[a.revenue]||0)).slice(0,8);
+  const maxRev = Math.max(...withRev.map(a=>revMap[a.revenue]||0),1);
+
+  el.innerHTML = `<div class="dash-wrap">
+    <!-- KPI -->
+    <div class="dcard blue" style="grid-column:1/-1">
+      <div class="dc-title">Portfolio Overview</div>
+      <div class="kpi-grid">
+        <div class="kpi"><div class="kpi-n" style="color:var(--blue)">${total}</div><div class="kpi-l">Total Accounts</div></div>
+        <div class="kpi"><div class="kpi-n" style="color:var(--green)">${accounts.filter(a=>a.stage==="MSA").length}</div><div class="kpi-l">MSA / Active</div></div>
+        <div class="kpi"><div class="kpi-n" style="color:var(--amber)">${accounts.filter(a=>a.nextDate&&a.nextDate<=soon&&a.stage!=="Cold").length}</div><div class="kpi-l">Actions Due</div></div>
+        <div class="kpi"><div class="kpi-n" style="color:var(--purple)">${keyAccts.length}</div><div class="kpi-l">Key Accounts</div></div>
+      </div>
+    </div>
+    <!-- Stage funnel -->
+    <div class="dcard green">
+      <div class="dc-title">Stage Funnel</div>
+      <div class="funnel">${stageOrder.map(s=>{
+        const n=accounts.filter(a=>a.stage===s).length;
+        const pct=total?Math.round(n/total*100):0;
+        return `<div class="funnel-row">
+          <div class="funnel-label">${s}</div>
+          <div class="funnel-track"><div class="funnel-fill" style="width:${pct}%;background:${stageCols[s]}"><span class="funnel-val">${n}</span></div></div>
+          <div class="funnel-pct">${pct}%</div>
+        </div>`;}).join("")}
+      </div>
+    </div>
+    <!-- Engagement donut -->
+    <div class="dcard navy">
+      <div class="dc-title">Engagement Mix</div>
+      <div class="donut-wrap">
+        <svg width="120" height="120" viewBox="0 0 120 120">
+          ${donutPaths}
+          <circle cx="60" cy="60" r="${r-stroke}" fill="white"/>
+          <text x="60" y="55" text-anchor="middle" font-size="18" font-weight="900" font-family="DM Mono" fill="#00132F">${total}</text>
+          <text x="60" y="70" text-anchor="middle" font-size="8" fill="#7A8FB0" font-family="Montserrat">Accounts</text>
+        </svg>
+        <div class="donut-legend">${stageData.map(({s,n,c})=>`
+          <div class="dl-row"><div class="dl-dot" style="background:${c}"></div><div class="dl-text">${s}</div><div class="dl-count">${n}</div></div>`).join("")}
+        </div>
+      </div>
+    </div>
+    <!-- Segment breakdown -->
+    <div class="dcard amber">
+      <div class="dc-title">By Segment</div>
+      <div class="seg-bar-wrap">${segs.map(s=>{
+        const items=accounts.filter(a=>a.seg===s);
+        return `<div class="seg-row">
+          <div class="seg-row-top"><div class="seg-name">${s}</div><div class="seg-count">${items.length}</div></div>
+          <div class="seg-track">
+            ${stageOrder.map(st=>{
+              const n=items.filter(a=>a.stage===st).length;
+              const pct=items.length?Math.round(n/items.length*100):0;
+              return `<div class="seg-seg" style="width:${pct}%;background:${stageCols[st]}" title="${st}: ${n}"></div>`;
+            }).join("")}
+          </div>
+        </div>`;}).join("")}
+      </div>
+    </div>
+    <!-- Lead workload -->
+    <div class="dcard purple">
+      <div class="dc-title">Lead Workload</div>
+      ${leads.map(lead=>{
+        const items=accounts.filter(a=>a.lead===lead);
+        const max=accounts.filter(a=>leads.map(l=>l).includes(a.lead));
+        return `<div class="lead-row">
+          <div class="lead-av-lg" style="background:${lc(lead)}">${ini(lead)}</div>
+          <div class="lead-name-lg">${lead}</div>
+          <div class="lead-track">
+            ${stageOrder.map(st=>{
+              const n=items.filter(a=>a.stage===st).length;
+              const pct=total?Math.round(n/total*100):0;
+              return `<div class="lead-seg" style="width:${pct}%;background:${stageCols[st]}" title="${st}: ${n}"></div>`;
+            }).join("")}
+          </div>
+          <div class="lead-total">${items.length}</div>
+        </div>`;}).join("")}
+    </div>
+    <!-- Key account health -->
+    ${keyAccts.length?`<div class="dcard multi">
+      <div class="dc-title">Key Account Health</div>
+      <div class="ka-grid">${keyAccts.map(a=>{
+        const cfg=laneCfg(a.stage);
+        return `<div class="ka-card" style="border-left-color:${cfg.color}">
+          <div class="ka-name" title="${esc(a.name)}">${esc(a.name)}</div>
+          <div class="ka-dots">
+            ${[{lbl:"Stage",col:cfg.color,icon:"S"},{lbl:"Lead",col:lc(a.lead),icon:ini(a.lead||"?")},{lbl:a.method||"",col:METHOD_COLOR[a.method]||"#BBC5DE",icon:"M"}].map(d=>`
+              <div class="ka-dot-wrap"><div class="ka-dot" style="background:${d.col}20"><span style="font-size:7px;font-weight:800;color:${d.col}">${d.icon}</span></div><div class="ka-dot-lbl">${d.lbl}</div></div>`).join("")}
+          </div>
+        </div>`;}).join("")}
+      </div>
+    </div>`:""}
+    <!-- Revenue pipeline -->
+    ${withRev.length?`<div class="dcard blue">
+      <div class="dc-title">Revenue Pipeline</div>
+      ${withRev.map(a=>{
+        const cfg=laneCfg(a.stage);
+        const pct=Math.round((revMap[a.revenue]||0)/maxRev*100);
+        return `<div class="rev-row">
+          <div class="rev-name" title="${esc(a.name)}">${esc(a.name)}</div>
+          <div class="rev-bar-wrap"><div class="rev-bar" style="width:${pct}%;background:${cfg.color}">
+            <span class="rev-val">${esc(a.revenue)}</span>
+          </div></div>
+          <div class="rev-stage-dot" style="background:${cfg.color}" title="${esc(a.stage)}"></div>
+        </div>`;}).join("")}
+    </div>`:""}
+    <!-- Urgency timeline -->
+    ${urgent.length?`<div class="dcard amber">
+      <div class="dc-title">Actions Due — Next 30 Days</div>
+      ${urgent.map(a=>`
+        <div class="urg-row">
+          <div class="urg-date">${fd(a.nextDate)}</div>
+          <div><div class="urg-name">${esc(a.name)}</div><div class="urg-action">${esc(a.nextAction||"")}</div></div>
+        </div>`).join("")}
+    </div>`:`<div class="dcard amber">
+      <div class="dc-title">Actions Due — Next 30 Days</div>
+      <div style="font-size:11.5px;color:var(--tsoft);font-style:italic;padding:20px 0">No actions due in the next 30 days.</div>
+    </div>`}
+  </div>`;
+}
+
+// ─────────────────────────────────────────────────────────────────────
+//  EXPORT CSV (unchanged from original)
+// ─────────────────────────────────────────────────────────────────────
+function exportCSV() {
+  const cols = ["name","seg","stage","keyAccount","lead","leadTitle","method","lastDate","nextDate","nextAction","revenue","notes"];
+  const hdr  = ["Account","Segment","Stage","Key Account","Lead","Lead Title","Last Method","Last Date","Next Due","Next Action","Revenue","Notes","Team","Contacts"];
+  const rows = [hdr.join(","), ...accounts.map(a => {
+    const base = cols.map(c => `"${String(a[c]||"").replace(/"/g,'""')}"`).join(",");
+    return base +
+      `,"${(a.team||[]).map(t=>t.name).join("; ")}"` +
+      `,"${(a.clientContacts||[]).map(c=>c.name+" — "+c.title).join("; ")}"`;
+  })];
+  const b  = new Blob([rows.join("\n")], {type:"text/csv"});
+  const el = document.createElement("a");
+  el.href  = URL.createObjectURL(b);
+  el.download = "RCM_Pursuit_" + new Date().toISOString().slice(0,10) + ".csv";
+  el.click();
+}
+window.exportCSV = exportCSV;
+
+</script>
+</body>
+</html>
