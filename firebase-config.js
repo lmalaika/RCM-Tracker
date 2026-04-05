@@ -11,10 +11,10 @@
 // ═══════════════════════════════════════════════════════════════════
 
 const FIREBASE_CONFIG = {
-  apiKey:            "PASTE_YOUR_API_KEY_HERE",
-  authDomain:        "PASTE_YOUR_PROJECT_ID.firebaseapp.com",
-  projectId:         "PASTE_YOUR_PROJECT_ID_HERE",
-  storageBucket:     "PASTE_YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "PASTE_YOUR_MESSAGING_SENDER_ID",
-  appId:             "PASTE_YOUR_APP_ID_HERE"
+  apiKey:            "AIzaSyCDH0V6dKi6xxiaDM-v2p-bQqjfFQddBFI",
+  authDomain:        "rcm-tracker.firebaseapp.com",
+  projectId:         "rcm-tracker",
+  storageBucket:     "rcm-tracker.firebasestorage.app",
+  messagingSenderId: "828023174743",
+  appId:             "1:828023174743:web:b160ae8a7d873baf561512"
 };
