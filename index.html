@@ -345,9 +345,15 @@ import { getFirestore, collection, doc, onSnapshot,
          addDoc, updateDoc, deleteDoc, serverTimestamp,
          query, orderBy }                              from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// Load config from the separate file you filled in
-// (If you see "PASTE_YOUR" still in the config, stop and fill firebase-config.js first)
-const { FIREBASE_CONFIG } = await import("./firebase-config.js");
+// ── FIREBASE CREDENTIALS (embedded directly) ──────────────────────
+const FIREBASE_CONFIG = {
+  apiKey:            "AIzaSyCDH0V6dKi6xxiaDM-v2p-bQqjfFQddBFI",
+  authDomain:        "rcm-tracker.firebaseapp.com",
+  projectId:         "rcm-tracker",
+  storageBucket:     "rcm-tracker.firebasestorage.app",
+  messagingSenderId: "828023174743",
+  appId:             "1:828023174743:web:b160ae8a7d873baf561512"
+};
 
 // ── INIT ──────────────────────────────────────────────────────────────
 const app = initializeApp(FIREBASE_CONFIG);
