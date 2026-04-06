@@ -559,7 +559,20 @@ function renderLane(arr) {
               <div class="card-name">${esc(a.name)}</div>
               <span class="chip" style="background:${cfg.chip_bg};color:${cfg.chip_tc}">${a.seg||""}</span>
             </div>
-            ${a.nextAction?`<div class="card-action">${esc(a.nextAction)}</div>`:""}
+            ${(()=>{
+              const acts = (a.nextActions && a.nextActions.length) ? a.nextActions : (a.nextAction ? [{text:a.nextAction, date:a.nextDate||''}] : []);
+              if (!acts.length) return '';
+              const today = new Date().toISOString().slice(0,10);
+              const soon  = new Date(Date.now()+7*24*3600*1000).toISOString().slice(0,10);
+              return acts.map(na=>{
+                const over = na.date && na.date < today;
+                const near = na.date && !over && na.date <= soon;
+                return `<div class="card-action" style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px;margin-bottom:3px;">
+                  <span>${esc(na.text)}</span>
+                  ${na.date?`<span class="due-chip ${over?'due-over':near?'due-soon':'due-ok'}" style="flex-shrink:0;font-size:8px;">${fd(na.date)}</span>`:''}
+                </div>`;
+              }).join('');
+            })()}
             <div class="card-footer">
               <div class="card-lead">
                 <div class="av" style="background:${lc(a.lead)}">${ini(a.lead||"?")}</div>
@@ -567,7 +580,7 @@ function renderLane(arr) {
               </div>
               <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap">
                 ${a.keyAccount?`<span class="key-badge">⭐ Key</span>`:""}
-                ${a.nextDate?`<span class="due-chip ${over?"due-over":near?"due-soon":"due-ok"}">${fd(a.nextDate)}</span>`:""}
+
                 ${a.method?`<div class="method-dot" title="${esc(a.method)}" style="background:${METHOD_COLOR[a.method]||"#BBC5DE"}"></div>`:""}
               </div>
             </div>
@@ -651,14 +664,29 @@ function openDetail(idx) {
           </div>`).join("")}
       </div>`:""}
       <div class="detail-section full">
-        <div class="ds-title">Next Action</div>
-        <div class="next-box">
-          <div class="next-label">Action</div>
-          <div class="next-text">${esc(a.nextAction||"No action set")}</div>
-          ${a.nextDate?`<div class="due-text">Due: ${fd(a.nextDate)}</div>`:""}
-        </div>
+        <div class="ds-title">Next Actions</div>
+        ${(()=>{
+          const acts = (a.nextActions && a.nextActions.length) ? a.nextActions : (a.nextAction ? [{text:a.nextAction, date:a.nextDate||''}] : []);
+          if (!acts.length) return `<div class="next-box"><div class="next-text" style="color:var(--tsoft);font-style:italic">No actions set</div></div>`;
+          const today = new Date().toISOString().slice(0,10);
+          return acts.map(na=>{
+            const over = na.date && na.date < today;
+            const near = na.date && !over && na.date <= new Date(Date.now()+7*24*3600*1000).toISOString().slice(0,10);
+            return `<div class="next-box" style="margin-bottom:8px;">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+                <div class="next-text">${esc(na.text)}</div>
+                ${na.date?`<div class="due-text" style="margin-top:0;white-space:nowrap">${fd(na.date)}</div>`:''}
+              </div>
+            </div>`;
+          }).join('');
+        })()}
       </div>
       ${a.notes?`<div class="detail-section full"><div class="ds-title">Notes</div><div class="notes-text">${esc(a.notes)}</div></div>`:""}
+      ${(a.customSections||[]).length ? (a.customSections||[]).map(s=>`
+        <div class="detail-section full">
+          <div class="ds-title">${esc(s.title||'')}</div>
+          <div class="notes-text">${esc(s.content||'')}</div>
+        </div>`).join('') : ''}
     </div>`;
   document.getElementById("ov").classList.add("open");
 }
@@ -714,10 +742,12 @@ function switchToEdit() {
         </select>
       </div>
       <div class="fg"><label class="fl">Last Contact Date</label><input class="fi" id="f-lastdate" type="date" value="${esc(src.lastDate||"")}"></div>
-      <div class="fg"><label class="fl">Next Action Date</label><input class="fi" id="f-nextdate" type="date" value="${esc(src.nextDate||"")}"></div>
       <div class="fg"><label class="fl">Revenue Estimate</label><input class="fi" id="f-revenue" value="${esc(src.revenue||"")}"></div>
-      <div class="fg full"><label class="fl">Next Action</label><input class="fi" id="f-nextaction" value="${esc(src.nextAction||"")}"></div>
     </div>
+
+    <div class="msec">Next Actions</div>
+    <div class="dlist" id="actions-list"></div>
+    <button class="btn-add" onclick="addNextAction()">+ Add Next Action</button>
 
     <div class="msec">RCM Team</div>
     <div class="dlist" id="team-list"></div>
@@ -729,9 +759,19 @@ function switchToEdit() {
 
     <div class="msec">Notes</div>
     <div class="fg full"><textarea class="ft" id="f-notes" rows="3">${esc(src.notes||"")}</textarea></div>
+
+    <div class="msec">Custom Sections</div>
+    <div id="custom-sections-list"></div>
+    <button class="btn-add" onclick="addCustomSection()">+ Add Custom Section</button>
   `;
+  // Seed initial data from existing account
+  const initActions = (src.nextActions && src.nextActions.length)
+    ? src.nextActions
+    : (src.nextAction ? [{text:src.nextAction, date:src.nextDate||''}] : []);
+  buildActionsList(initActions);
   buildTeamList(src.team || []);
   buildContactsList(src.clientContacts || []);
+  buildCustomSectionsList(src.customSections || []);
 }
 window.switchToEdit = switchToEdit;
 
@@ -769,10 +809,12 @@ async function saveAccount() {
     clientContacts: readContactsList(),
     method:         document.getElementById("f-method").value,
     lastDate:       document.getElementById("f-lastdate").value,
-    nextDate:       document.getElementById("f-nextdate").value,
-    nextAction:     document.getElementById("f-nextaction").value.trim(),
+    nextActions:    readActionsList(),
+    nextAction:     readActionsList()[0]?.text || '',
+    nextDate:       readActionsList()[0]?.date || '',
     revenue:        document.getElementById("f-revenue").value.trim(),
     notes:          document.getElementById("f-notes").value.trim(),
+    customSections: readCustomSectionsList(),
     lastModified:   new Date().toISOString().split("T")[0],
     updatedAt:      serverTimestamp(), // Firestore server timestamp for ordering
   };
@@ -873,6 +915,62 @@ function readContactsList() {
 }
 window.addContact     = addContact;
 window.removeContact  = removeContact;
+
+// ─────────────────────────────────────────────────────────────────────
+//  NEXT ACTIONS LIST HELPERS
+// ─────────────────────────────────────────────────────────────────────
+function buildActionsList(actions) {
+  const el = document.getElementById('actions-list');
+  if (!el) return;
+  el.innerHTML = actions.map((a, i) => `
+    <div class="dl-item">
+      <div class="dl-fields" style="flex-direction:column;gap:5px;">
+        <input value="${esc(a.text||'')}" placeholder="Next action description…" style="font-weight:600;width:100%;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <label style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--tsoft);white-space:nowrap;">Due Date</label>
+          <input type="date" value="${esc(a.date||'')}" style="font-size:11px;flex:1;">
+        </div>
+      </div>
+      <button class="dl-del" onclick="removeAction(${i})">×</button>
+    </div>`).join('');
+}
+function addNextAction()  { buildActionsList([...readActionsList(), {text:'', date:''}]); }
+function removeAction(i)  { const a = readActionsList(); a.splice(i,1); buildActionsList(a); }
+function readActionsList() {
+  return Array.from(document.querySelectorAll('#actions-list .dl-item')).map(el => {
+    const ins = el.querySelectorAll('input');
+    return { text: ins[0]?.value.trim()||'', date: ins[1]?.value||'' };
+  }).filter(a => a.text);
+}
+window.addNextAction = addNextAction;
+window.removeAction  = removeAction;
+
+// ─────────────────────────────────────────────────────────────────────
+//  CUSTOM SECTIONS HELPERS
+// ─────────────────────────────────────────────────────────────────────
+function buildCustomSectionsList(sections) {
+  const el = document.getElementById('custom-sections-list');
+  if (!el) return;
+  el.innerHTML = sections.map((s, i) => `
+    <div class="dl-item" style="flex-direction:column;gap:8px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+        <input value="${esc(s.title||'')}" placeholder="Section name (e.g. Market Intel, Competitive Notes…)" style="font-weight:700;font-size:12px;flex:1;border:none;outline:none;background:transparent;font-family:'Montserrat',sans-serif;color:var(--text);">
+        <button class="dl-del" onclick="removeCustomSection(${i})">×</button>
+      </div>
+      <textarea placeholder="Enter content for this section…" style="border:none;outline:none;background:transparent;font-size:12px;font-family:'Montserrat',sans-serif;color:var(--text);width:100%;min-height:60px;resize:vertical;line-height:1.5;">${esc(s.content||'')}</textarea>
+    </div>`).join('');
+}
+function addCustomSection()     { buildCustomSectionsList([...readCustomSectionsList(), {title:'', content:''}]); }
+function removeCustomSection(i) { const s = readCustomSectionsList(); s.splice(i,1); buildCustomSectionsList(s); }
+function readCustomSectionsList() {
+  return Array.from(document.querySelectorAll('#custom-sections-list .dl-item')).map(el => {
+    const inp = el.querySelector('input');
+    const ta  = el.querySelector('textarea');
+    return { title: inp?.value.trim()||'', content: ta?.value.trim()||'' };
+  }).filter(s => s.title || s.content);
+}
+window.addCustomSection     = addCustomSection;
+window.removeCustomSection  = removeCustomSection;
 
 // ─────────────────────────────────────────────────────────────────────
 //  DASHBOARD (unchanged from original)
