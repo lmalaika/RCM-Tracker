@@ -699,7 +699,7 @@ function switchToEdit() {
         </select>
       </div>
       <div class="fg"><label class="fl">RCM Lead</label>
-        <select class="fs" id="f-lead">
+        <select class="fs" id="f-lead2">
           ${["Laith","Ameen","Samantha","Hans","Adam","Rimer","Kevin","Naz","Ryan"].map(o=>`<option${src.lead===o?" selected":""}>${o}</option>`).join("")}
         </select>
       </div>
@@ -763,7 +763,7 @@ async function saveAccount() {
     seg:            document.getElementById("f-seg2").value,
     stage:          document.getElementById("f-stage2").value,
     keyAccount:     document.getElementById("f-key").value === "1",
-    lead:           document.getElementById("f-lead").value,
+    lead:           document.getElementById("f-lead2").value,
     leadTitle:      document.getElementById("f-lead-title").value.trim(),
     team:           readTeamList(),
     clientContacts: readContactsList(),
