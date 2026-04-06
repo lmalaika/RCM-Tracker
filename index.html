@@ -423,8 +423,8 @@ const REL_TYPES = ["Champion","Technical","Decision Maker","Key Buyer","Target",
 // ─────────────────────────────────────────────────────────────────────
 //  HELPERS (unchanged from original)
 // ─────────────────────────────────────────────────────────────────────
-function lc(name)   { return LEAD_COLOR[name] || "#445070"; }
-function ini(name)  { const p = name.trim().split(" "); return (p[0][0] + (p[1] ? p[1][0] : "")).toUpperCase(); }
+function lc(name)   { if (!name || !name.trim()) return "#445070"; return LEAD_COLOR[name.trim()] || LEAD_COLOR[name] || "#1061E9"; }
+function ini(name)  { if (!name || !name.trim()) return "L"; const p = name.trim().split(" "); return ((p[0]?.[0] || "") + (p[1]?.[0] || "")).toUpperCase() || "L"; }
 function fd(d)      { if (!d) return ""; const p = d.split("-"); if (p.length !== 3) return d; return p[1]+"-"+p[2]+"-"+p[0]; }
 function laneCfg(s) { return LANE_CFG.find(l => l.key === s) || LANE_CFG[3]; }
 function sv(id, v)  { const e = document.getElementById(id); if (e) e.value = v || ""; }
@@ -624,8 +624,8 @@ function openDetail(idx) {
       <div class="detail-section">
         <div class="ds-title">RCM Lead</div>
         <div class="ds-lead">
-          <div class="ds-av" style="background:${lc(a.lead)}">${ini(a.lead||"?")}</div>
-          <div><div class="ds-lead-name">${esc(a.lead||"")}</div><div class="ds-lead-title">${esc(a.leadTitle||"")}</div></div>
+          <div class="ds-av" style="background:${lc(a.lead)}">${ini(a.lead || "Laith")}</div>
+          <div><div class="ds-lead-name">${esc(a.lead || "Laith")}</div><div class="ds-lead-title">${esc(a.leadTitle||"")}</div></div>
         </div>
         ${(a.team||[]).length?`<div class="team-row">${(a.team||[]).map(m=>`
           <div class="team-pill">
