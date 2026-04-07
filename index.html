@@ -25,7 +25,7 @@ body{font-family:'Montserrat',sans-serif;background:var(--bg);color:var(--text);
 /* ── HEADER ── */
 .hdr{background:var(--navy);height:60px;padding:0 32px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:300;box-shadow:0 3px 24px rgba(0,0,0,0.28);}
 .hdr-l{display:flex;align-items:center;gap:14px;}
-.logo{height:36px;width:auto;}
+.logo{height:34px;width:auto;}
 .vline{width:1px;height:28px;background:rgba(255,255,255,0.14);}
 .app-title{color:#fff;font-size:13.5px;font-weight:700;letter-spacing:.1px;}
 .app-sub{color:rgba(255,255,255,0.32);font-size:8.5px;letter-spacing:2px;text-transform:uppercase;margin-top:1px;}
@@ -305,17 +305,16 @@ tr{cursor:pointer;}
 <!-- HEADER -->
 <div class="hdr">
   <div class="hdr-l">
-    <!-- RCM Logo -->
-    <svg class="logo" viewBox="0 0 130 38" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <!-- Square icon block -->
-      <rect x="0" y="1" width="36" height="36" rx="4" fill="#ffffff"/>
-      <text x="4" y="27" font-family="Montserrat,Arial,sans-serif" font-weight="900" font-size="20" fill="#00132F" letter-spacing="-0.5">RCM</text>
-      <!-- Divider line -->
-      <line x1="43" y1="6" x2="43" y2="32" stroke="rgba(255,255,255,0.25)" stroke-width="1.5"/>
-      <!-- TECHNOLOGIES wordmark -->
-      <text x="50" y="17" font-family="Montserrat,Arial,sans-serif" font-weight="700" font-size="9" fill="rgba(255,255,255,0.90)" letter-spacing="1.8">TECHNOLOGIES</text>
-      <!-- Energy Services sub-label -->
-      <text x="50" y="29" font-family="Montserrat,Arial,sans-serif" font-weight="500" font-size="7.5" fill="rgba(255,255,255,0.50)" letter-spacing="0.8">Energy Services</text>
+    <!-- RCM Energy Services Logo — matches official branding -->
+    <svg class="logo" viewBox="0 0 260 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- RCM lettermark -->
+      <text x="0" y="40" font-family="Arial,Helvetica,sans-serif" font-weight="300" font-size="44" fill="#ffffff" letter-spacing="-1">RCM</text>
+      <!-- Blue arc / swoosh — matches the curved arc in the official logo -->
+      <path d="M 108 4 A 30 30 0 0 1 108 48" stroke="#1061E9" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+      <path d="M 112 8 A 24 24 0 0 1 112 44" stroke="#1A7AFF" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.6"/>
+      <!-- Energy Services wordmark -->
+      <text x="122" y="26" font-family="Arial,Helvetica,sans-serif" font-weight="300" font-size="18" fill="#ffffff" letter-spacing="0.3">E<tspan font-size="14" baseline-shift="-1">NERGY</tspan></text>
+      <text x="122" y="44" font-family="Arial,Helvetica,sans-serif" font-weight="300" font-size="18" fill="#ffffff" letter-spacing="0.3">S<tspan font-size="14" baseline-shift="-1">ERVICES</tspan></text>
     </svg>
     <div class="vline"></div>
     <div>
