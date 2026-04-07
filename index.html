@@ -246,6 +246,58 @@ tr{cursor:pointer;}
 /* ── DELETE BUTTON ── */
 .btn-danger{background:#A82318;color:#fff;border:none;border-radius:8px;padding:7px 15px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Montserrat',sans-serif;transition:all .14s;}
 .btn-danger:hover{background:#8a1d14;}
+
+/* ── CALENDAR VIEW ────────────────────────────────────── */
+.cal-wrap{padding:20px 28px 40px;}
+.cal-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;}
+.cal-nav{display:flex;align-items:center;gap:8px;}
+.cal-nav-btn{width:30px;height:30px;border-radius:7px;border:1.5px solid var(--border);background:var(--white);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;color:var(--tsoft);transition:all .12s;}
+.cal-nav-btn:hover{border-color:var(--blue);color:var(--blue);}
+.cal-month{font-size:17px;font-weight:800;color:var(--navy);min-width:170px;text-align:center;font-family:'Montserrat',sans-serif;}
+.cal-today-btn{font-size:10.5px;font-weight:700;padding:4px 13px;border-radius:20px;border:1.5px solid var(--blue);background:transparent;color:var(--blue);cursor:pointer;font-family:'Montserrat',sans-serif;transition:all .12s;}
+.cal-today-btn:hover{background:var(--blue);color:#fff;}
+.cal-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.cal-fsel{font-size:11px;padding:5px 10px;border-radius:8px;border:1.5px solid var(--border);background:var(--white);color:var(--tsoft);font-family:'Montserrat',sans-serif;cursor:pointer;}
+/* Legend */
+.cal-legend{display:flex;gap:12px;flex-wrap:wrap;padding:9px 14px;background:var(--white);border:1.5px solid var(--border);border-radius:9px;margin-bottom:14px;}
+.cal-li{display:flex;align-items:center;gap:4px;font-size:9.5px;font-weight:700;color:var(--tsoft);font-family:'Montserrat',sans-serif;}
+.cal-ldot{width:9px;height:9px;border-radius:3px;flex-shrink:0;}
+/* Grid */
+.cal-grid-outer{background:var(--white);border-radius:12px;border:1.5px solid var(--border);overflow:hidden;box-shadow:0 2px 16px rgba(16,30,80,.08);}
+.cal-dow-row{display:grid;grid-template-columns:repeat(7,1fr);background:var(--navy);}
+.cal-dow{padding:9px 0;text-align:center;font-size:9.5px;font-weight:700;letter-spacing:1.2px;color:rgba(255,255,255,.55);font-family:'DM Mono',monospace;text-transform:uppercase;}
+.cal-days{display:grid;grid-template-columns:repeat(7,1fr);}
+.cal-day{min-height:108px;padding:7px 7px 5px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);position:relative;transition:background .1s;}
+.cal-day:hover{background:var(--bg);}
+.cal-day.other{background:var(--bg);}
+.cal-day.other .cal-dn{color:var(--tsoft);}
+.cal-day.today{background:#EEF5FF;}
+.cal-day.today .cal-dn{background:var(--blue);color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;}
+.cal-day:nth-child(7n){border-right:none;}
+.cal-day:nth-last-child(-n+7){border-bottom:none;}
+.cal-dn{font-size:11.5px;font-weight:700;color:var(--navy);font-family:'DM Mono',monospace;width:22px;height:22px;display:flex;align-items:center;justify-content:center;margin-bottom:3px;}
+/* Pills */
+.cal-pill{display:flex;align-items:center;gap:3px;padding:2px 5px;border-radius:4px;margin-bottom:2px;cursor:pointer;font-size:9px;font-weight:700;font-family:'Montserrat',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;transition:opacity .12s;}
+.cal-pill:hover{opacity:.8;}
+.cal-pdot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
+.cal-more{font-size:8.5px;font-weight:700;color:var(--tsoft);padding:1px 5px;cursor:pointer;text-align:right;}
+.cal-more:hover{color:var(--blue);}
+/* Color classes */
+.cp-onsite{background:#D4F0E4;color:#0A6B49;}
+.cp-remote{background:#E0EAFF;color:#1061E9;}
+.cp-call{background:#E0EAFF;color:#1061E9;}
+.cp-lunch,.cp-dinner{background:#FFF0CC;color:#7A5500;}
+.cp-event{background:#EDE4FF;color:#5B2D9E;}
+.cp-due{background:#FFE5E5;color:#A82318;}
+.cp-dueok{background:#EEF1F8;color:#445070;}
+.cp-last{background:#F5F7FC;color:#7A8FB0;}
+/* Popup */
+.cal-popup{display:none;position:fixed;z-index:2000;background:var(--white);border:1.5px solid var(--border);border-radius:11px;padding:14px 16px;max-width:300px;min-width:220px;box-shadow:0 8px 32px rgba(16,30,80,.16);}
+.cal-popup.vis{display:block;}
+.cal-popup-title{font-size:13px;font-weight:800;color:var(--navy);margin-bottom:2px;}
+.cal-popup-sub{font-size:10px;color:var(--tsoft);margin-bottom:8px;font-family:'DM Mono',monospace;}
+.cal-popup-body{font-size:11px;color:var(--tsoft);line-height:1.5;}
+.cal-popup-cls{position:absolute;top:8px;right:10px;background:none;border:none;cursor:pointer;font-size:15px;color:var(--tsoft);}
 </style>
 </head>
 <body>
@@ -308,6 +360,7 @@ tr{cursor:pointer;}
     <button class="vtgl-btn on" id="vbtn-lane" onclick="setView('lane',this)">Portfolio</button>
     <button class="vtgl-btn" id="vbtn-table" onclick="setView('table',this)">Table</button>
     <button class="vtgl-btn" id="vbtn-dash" onclick="setView('dash',this)">📊 Dashboard</button>
+    <button class="vtgl-btn" id="vbtn-cal" onclick="setView('cal',this)">📅 Calendar</button>
   </div>
 </div>
 
@@ -530,6 +583,7 @@ function render() {
   const arr = filtered();
   if (currentView === "lane")       renderLane(arr);
   else if (currentView === "table") renderTable(arr);
+  else if (currentView === "cal")   renderCalendar();
   else                              renderDashboard();
 }
 window.render = render;
@@ -687,6 +741,19 @@ function openDetail(idx) {
           <div class="ds-title">${esc(s.title||'')}</div>
           <div class="notes-text">${esc(s.content||'')}</div>
         </div>`).join('') : ''}
+      ${(a.upcomingEvents||[]).length ? `
+      <div class="detail-section full">
+        <div class="ds-title">Upcoming Events</div>
+        ${(a.upcomingEvents||[]).map(ev=>{
+          const evCfg = UEV_CFG[ev.type]||UEV_CFG['call'];
+          const evOver = ev.date && ev.date < new Date().toISOString().slice(0,10);
+          return `<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);">
+            <span style="font-size:10px;padding:2px 9px;border-radius:5px;font-weight:700;background:${evCfg.bg};color:${evCfg.color};white-space:nowrap;">${evCfg.icon} ${evCfg.label}</span>
+            <span style="font-size:12px;font-weight:600;color:var(--text);flex:1;">${esc(ev.title||'')}</span>
+            ${ev.date?`<span style="font-size:11px;font-family:'DM Mono',monospace;color:${evOver?'#A82318':'var(--amber)'};">${fd(ev.date)}</span>`:''}
+          </div>`;
+        }).join('')}
+      </div>` : ''}
     </div>`;
   document.getElementById("ov").classList.add("open");
 }
@@ -763,6 +830,10 @@ function switchToEdit() {
     <div class="msec">Custom Sections</div>
     <div id="custom-sections-list"></div>
     <button class="btn-add" onclick="addCustomSection()">+ Add Custom Section</button>
+
+    <div class="msec">Upcoming Events</div>
+    <div class="dlist" id="uev-list"></div>
+    <button class="btn-add" onclick="addUpcomingEvent()">+ Add Event</button>
   `;
   // Seed initial data from existing account
   const initActions = (src.nextActions && src.nextActions.length)
@@ -772,6 +843,7 @@ function switchToEdit() {
   buildTeamList(src.team || []);
   buildContactsList(src.clientContacts || []);
   buildCustomSectionsList(src.customSections || []);
+  buildUpcomingEventsList(src.upcomingEvents || []);
 }
 window.switchToEdit = switchToEdit;
 
@@ -814,8 +886,9 @@ async function saveAccount() {
     nextDate:       readActionsList()[0]?.date || '',
     revenue:        document.getElementById("f-revenue").value.trim(),
     notes:          document.getElementById("f-notes").value.trim(),
-    customSections: readCustomSectionsList(),
-    lastModified:   new Date().toISOString().split("T")[0],
+    customSections:   readCustomSectionsList(),
+    upcomingEvents:   readUpcomingEventsList(),
+    lastModified:     new Date().toISOString().split("T")[0],
     updatedAt:      serverTimestamp(), // Firestore server timestamp for ordering
   };
   if (!data.name) { alert("Account name is required."); return; }
@@ -837,6 +910,269 @@ async function saveAccount() {
     setSyncStatus("offline");
   }
 }
+
+// ─────────────────────────────────────────────────────────────────────
+//  UPCOMING EVENTS CONFIG
+// ─────────────────────────────────────────────────────────────────────
+const UEV_CFG = {
+  call:    { label:'Call',            icon:'📞', color:'#1061E9', bg:'#E0EAFF' },
+  remote:  { label:'Remote Meeting',  icon:'💻', color:'#1061E9', bg:'#E0EAFF' },
+  onsite:  { label:'Onsite Meeting',  icon:'🤝', color:'#0A6B49', bg:'#D4F0E4' },
+  lunch:   { label:'Lunch',           icon:'🍽️', color:'#7A5500', bg:'#FFF0CC' },
+  dinner:  { label:'Dinner',          icon:'🍷', color:'#7A5500', bg:'#FFF0CC' },
+  event:   { label:'Client Event',    icon:'📅', color:'#5B2D9E', bg:'#EDE4FF' },
+};
+
+// ─────────────────────────────────────────────────────────────────────
+//  UPCOMING EVENTS LIST HELPERS (edit modal)
+// ─────────────────────────────────────────────────────────────────────
+function buildUpcomingEventsList(evs) {
+  const el = document.getElementById('uev-list');
+  if (!el) return;
+  el.innerHTML = evs.map((ev, i) => `
+    <div class="dl-item" style="flex-direction:column;gap:6px;">
+      <div style="display:flex;gap:7px;align-items:center;">
+        <select style="font-size:11px;min-width:130px;flex-shrink:0;" onchange="void(0)">
+          ${Object.entries(UEV_CFG).map(([k,v])=>`<option value="${k}"${ev.type===k?' selected':''}>${v.icon} ${v.label}</option>`).join('')}
+        </select>
+        <input value="${esc(ev.title||'')}" placeholder="Event title (e.g. Quarterly review, Raleigh dinner…)" style="flex:1;">
+        <input type="date" value="${esc(ev.date||'')}" style="width:130px;font-size:11px;flex-shrink:0;">
+        <button class="dl-del" onclick="removeUpcomingEvent(${i})">×</button>
+      </div>
+    </div>`).join('');
+}
+function addUpcomingEvent() {
+  buildUpcomingEventsList([...readUpcomingEventsList(), {type:'call', title:'', date:''}]);
+}
+function removeUpcomingEvent(i) {
+  const evs = readUpcomingEventsList();
+  evs.splice(i, 1);
+  buildUpcomingEventsList(evs);
+}
+function readUpcomingEventsList() {
+  return Array.from(document.querySelectorAll('#uev-list .dl-item')).map(el => {
+    const sel  = el.querySelector('select');
+    const ins  = el.querySelectorAll('input');
+    return { type: sel?.value||'call', title: ins[0]?.value.trim()||'', date: ins[1]?.value||'' };
+  }).filter(ev => ev.title || ev.date);
+}
+window.addUpcomingEvent      = addUpcomingEvent;
+window.removeUpcomingEvent   = removeUpcomingEvent;
+
+// ─────────────────────────────────────────────────────────────────────
+//  CALENDAR VIEW
+// ─────────────────────────────────────────────────────────────────────
+let calYear  = new Date().getFullYear();
+let calMonth = new Date().getMonth();
+
+const CAL_TYPE_COLOR = {
+  call:   { cls:'cp-call',   dot:'#1061E9' },
+  remote: { cls:'cp-remote', dot:'#1061E9' },
+  onsite: { cls:'cp-onsite', dot:'#0A6B49' },
+  lunch:  { cls:'cp-lunch',  dot:'#7A5500' },
+  dinner: { cls:'cp-dinner', dot:'#7A5500' },
+  event:  { cls:'cp-event',  dot:'#5B2D9E' },
+  due:    { cls:'cp-due',    dot:'#A82318' },
+  dueok:  { cls:'cp-dueok',  dot:'#445070' },
+  last:   { cls:'cp-last',   dot:'#7A8FB0' },
+};
+
+function buildCalEvents() {
+  const today    = new Date().toISOString().slice(0,10);
+  const byDate   = {};
+  function push(date, ev) {
+    if (!date) return;
+    if (!byDate[date]) byDate[date] = [];
+    byDate[date].push(ev);
+  }
+
+  // ── From account upcomingEvents ──────────────────────
+  accounts.forEach(a => {
+    (a.upcomingEvents || []).forEach(ev => {
+      const cfg = UEV_CFG[ev.type] || UEV_CFG.call;
+      push(ev.date, {
+        type:  ev.type || 'call',
+        label: ev.title || cfg.label,
+        sub:   a.name,
+        lead:  a.lead,
+        acct:  a.name,
+      });
+    });
+
+    // Next action dates → show as due/dueok
+    const acts = (a.nextActions && a.nextActions.length)
+      ? a.nextActions
+      : (a.nextAction ? [{text: a.nextAction, date: a.nextDate||''}] : []);
+    acts.forEach(na => {
+      if (!na.date) return;
+      push(na.date, {
+        type:  na.date < today ? 'due' : 'dueok',
+        label: a.name,
+        sub:   na.text || 'Next action',
+        lead:  a.lead,
+        acct:  a.name,
+      });
+    });
+
+    // Last contact — small dot, subtle
+    if (a.lastDate) {
+      push(a.lastDate, {
+        type:  'last',
+        label: a.name,
+        sub:   'Last contacted · ' + (a.method||''),
+        lead:  a.lead,
+        acct:  a.name,
+      });
+    }
+  });
+
+  return byDate;
+}
+
+function renderCalendar() {
+  const wrap = document.getElementById('content');
+  if (!wrap) return;
+
+  const MONTHS = ['January','February','March','April','May','June',
+                  'July','August','September','October','November','December'];
+  const today  = new Date().toISOString().slice(0,10);
+  const byDate = buildCalEvents();
+
+  const firstDow   = new Date(calYear, calMonth, 1).getDay();
+  const daysInMon  = new Date(calYear, calMonth+1, 0).getDate();
+  const daysInPrev = new Date(calYear, calMonth,   0).getDate();
+  const MAX_PILLS  = 3;
+
+  // Sort order for event types
+  const TYPE_ORDER = {onsite:0,dinner:1,lunch:1,event:2,remote:3,call:3,due:4,dueok:5,last:6};
+
+  // Build day cells
+  let cells = '';
+
+  // Prev month fillers
+  for (let i = firstDow - 1; i >= 0; i--) {
+    cells += `<div class="cal-day other"><div class="cal-dn">${daysInPrev - i}</div></div>`;
+  }
+
+  // Current month days
+  for (let d = 1; d <= daysInMon; d++) {
+    const mm   = String(calMonth+1).padStart(2,'0');
+    const dd   = String(d).padStart(2,'0');
+    const date = `${calYear}-${mm}-${dd}`;
+    const isToday = date === today;
+    const evs  = (byDate[date] || []).slice().sort((a,b)=>
+      (TYPE_ORDER[a.type]||9) - (TYPE_ORDER[b.type]||9));
+
+    const pills = evs.slice(0, MAX_PILLS).map(ev => {
+      const tc  = CAL_TYPE_COLOR[ev.type] || CAL_TYPE_COLOR.dueok;
+      const lbl = (ev.label||'').length > 15 ? ev.label.slice(0,13)+'…' : (ev.label||'');
+      const icon = UEV_CFG[ev.type]?.icon || (ev.type==='due'?'🔴':ev.type==='last'?'·':'📋');
+      return `<div class="cal-pill ${tc.cls}"
+        onclick="showCalPopup(event,'${(ev.label||'').replace(/'/g,"\'")}','${(ev.sub||'').replace(/'/g,"\'")}','${date}','${(ev.lead||'').replace(/'/g,"\'")}','${ev.type}')"
+        title="${ev.label} — ${ev.sub||''}">
+        <div class="cal-pdot" style="background:${tc.dot}"></div>${icon} ${lbl}
+      </div>`;
+    }).join('');
+
+    const more = evs.length > MAX_PILLS
+      ? `<div class="cal-more">+${evs.length - MAX_PILLS} more</div>` : '';
+
+    cells += `<div class="cal-day${isToday?' today':''}">
+      <div class="cal-dn">${d}</div>
+      ${pills}${more}
+    </div>`;
+  }
+
+  // Next month fillers
+  const total = firstDow + daysInMon;
+  const rem   = (7 - (total % 7)) % 7;
+  for (let d = 1; d <= rem; d++) {
+    cells += `<div class="cal-day other"><div class="cal-dn">${d}</div></div>`;
+  }
+
+  // Legend
+  const legendItems = [
+    {dot:'#0A6B49', label:'Onsite Meeting'},
+    {dot:'#1061E9', label:'Remote / Call'},
+    {dot:'#7A5500', label:'Dinner / Lunch'},
+    {dot:'#5B2D9E', label:'Client Event'},
+    {dot:'#A82318', label:'Overdue Action'},
+    {dot:'#445070', label:'Next Action Due'},
+    {dot:'#7A8FB0', label:'Last Contacted'},
+  ].map(l=>`<div class="cal-li"><div class="cal-ldot" style="background:${l.dot}"></div>${l.label}</div>`).join('');
+
+  wrap.innerHTML = `
+    <div class="cal-wrap">
+      <div class="cal-hdr">
+        <div class="cal-nav">
+          <button class="cal-nav-btn" onclick="calPrevMonth()">&#8249;</button>
+          <div class="cal-month">${MONTHS[calMonth]} ${calYear}</div>
+          <button class="cal-nav-btn" onclick="calNextMonth()">&#8250;</button>
+          <button class="cal-today-btn" onclick="calGoToday()">Today</button>
+        </div>
+        <div style="font-size:11px;color:var(--tsoft);font-family:'DM Mono',monospace;">
+          ${accounts.length} accounts · ${Object.values(byDate).flat().length} events this month
+        </div>
+      </div>
+      <div class="cal-legend">${legendItems}</div>
+      <div class="cal-grid-outer">
+        <div class="cal-dow-row">
+          <div class="cal-dow">SUN</div><div class="cal-dow">MON</div>
+          <div class="cal-dow">TUE</div><div class="cal-dow">WED</div>
+          <div class="cal-dow">THU</div><div class="cal-dow">FRI</div>
+          <div class="cal-dow">SAT</div>
+        </div>
+        <div class="cal-days">${cells}</div>
+      </div>
+    </div>
+    <div class="cal-popup" id="cal-popup">
+      <button class="cal-popup-cls" onclick="closeCalPopup()">×</button>
+      <div class="cal-popup-title" id="cal-pt"></div>
+      <div class="cal-popup-sub"  id="cal-ps"></div>
+      <div class="cal-popup-body" id="cal-pb"></div>
+    </div>`;
+}
+window.renderCalendar = renderCalendar;
+
+function calPrevMonth() {
+  calMonth--;
+  if (calMonth < 0) { calMonth = 11; calYear--; }
+  renderCalendar();
+}
+function calNextMonth() {
+  calMonth++;
+  if (calMonth > 11) { calMonth = 0; calYear++; }
+  renderCalendar();
+}
+function calGoToday() {
+  calYear  = new Date().getFullYear();
+  calMonth = new Date().getMonth();
+  renderCalendar();
+}
+window.calPrevMonth = calPrevMonth;
+window.calNextMonth = calNextMonth;
+window.calGoToday   = calGoToday;
+
+function showCalPopup(e, label, sub, date, lead, type) {
+  e.stopPropagation();
+  const popup = document.getElementById('cal-popup');
+  if (!popup) return;
+  const cfg = UEV_CFG[type] || {};
+  document.getElementById('cal-pt').textContent = (cfg.icon||'') + ' ' + label;
+  document.getElementById('cal-ps').textContent = date + (lead ? '  ·  ' + lead : '');
+  document.getElementById('cal-pb').textContent = sub || '';
+  popup.style.left = Math.min(e.clientX + 12, window.innerWidth  - 320) + 'px';
+  popup.style.top  = Math.min(e.clientY + 12, window.innerHeight - 140) + 'px';
+  popup.classList.add('vis');
+}
+function closeCalPopup() {
+  const p = document.getElementById('cal-popup');
+  if (p) p.classList.remove('vis');
+}
+document.addEventListener('click', closeCalPopup);
+window.showCalPopup  = showCalPopup;
+window.closeCalPopup = closeCalPopup;
+
 window.saveAccount = saveAccount;
 
 // ─────────────────────────────────────────────────────────────────────
