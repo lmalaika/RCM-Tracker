@@ -25,7 +25,7 @@ body{font-family:'Montserrat',sans-serif;background:var(--bg);color:var(--text);
 /* ── HEADER ── */
 .hdr{background:var(--navy);height:60px;padding:0 32px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:300;box-shadow:0 3px 24px rgba(0,0,0,0.28);}
 .hdr-l{display:flex;align-items:center;gap:14px;}
-.logo{height:36px;}
+.logo{height:36px;width:auto;}
 .vline{width:1px;height:28px;background:rgba(255,255,255,0.14);}
 .app-title{color:#fff;font-size:13.5px;font-weight:700;letter-spacing:.1px;}
 .app-sub{color:rgba(255,255,255,0.32);font-size:8.5px;letter-spacing:2px;text-transform:uppercase;margin-top:1px;}
@@ -305,9 +305,17 @@ tr{cursor:pointer;}
 <!-- HEADER -->
 <div class="hdr">
   <div class="hdr-l">
-    <!-- RCM Logo (inline SVG text fallback) -->
-    <svg class="logo" viewBox="0 0 120 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <text x="4" y="26" font-family="Montserrat,sans-serif" font-weight="900" font-size="22" fill="#ffffff">RCM</text>
+    <!-- RCM Logo -->
+    <svg class="logo" viewBox="0 0 130 38" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Square icon block -->
+      <rect x="0" y="1" width="36" height="36" rx="4" fill="#ffffff"/>
+      <text x="4" y="27" font-family="Montserrat,Arial,sans-serif" font-weight="900" font-size="20" fill="#00132F" letter-spacing="-0.5">RCM</text>
+      <!-- Divider line -->
+      <line x1="43" y1="6" x2="43" y2="32" stroke="rgba(255,255,255,0.25)" stroke-width="1.5"/>
+      <!-- TECHNOLOGIES wordmark -->
+      <text x="50" y="17" font-family="Montserrat,Arial,sans-serif" font-weight="700" font-size="9" fill="rgba(255,255,255,0.90)" letter-spacing="1.8">TECHNOLOGIES</text>
+      <!-- Energy Services sub-label -->
+      <text x="50" y="29" font-family="Montserrat,Arial,sans-serif" font-weight="500" font-size="7.5" fill="rgba(255,255,255,0.50)" letter-spacing="0.8">Energy Services</text>
     </svg>
     <div class="vline"></div>
     <div>
